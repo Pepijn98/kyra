@@ -1,0 +1,27 @@
+{
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "eslint.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.validate": ["javascript", "typescript"],
+    "files.associations": {
+        ".babelrc": "jsonc",
+        ".eslintrc": "jsonc",
+        ".prettierrc": "jsonc",
+        ".stylelintrc": "json",
+        ".dockerignore": "ignore",
+        ".prettierignore": "ignore",
+        ".eslintignore": "ignore"
+    },
+    "search.exclude": {
+        ".git": true,
+        ".eslintcache": true,
+        "dist": true,
+        "node_modules": true,
+        "npm-debug.log.*": true,
+        "test/**/__snapshots__": true,
+        "package-lock.json": true,
+        "yarn.lock": true
+    }
+}
