@@ -1,0 +1,14 @@
+{
+    "name": "file-host",
+    "version": "1.0.0",
+    "description": "Private file hosting in express",
+    "homepage": "https://github.com/Pepijn98/file-host",
+    "bugs": {
+        "url": "https://github.com/Pepijn98/file-host/issues"
+    },
+    "author": {
+        "name": "Pepijn van den Broek",
+        "email": "pepijn@vdbroek.dev",
+        "url": "https://vdbroek.dev"
+    }
+}
