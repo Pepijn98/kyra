@@ -84,19 +84,10 @@ function main(): void {
 
     server.get("/", (_, res) => res.redirect(301, "/api"));
     server.get("/api", (_, res) => res.status(200).json(settings.api));
-    server.get("/400", (_, res) => res.status(400).render("error", { title: error[400].statusMessage, message: error[400].message }));
-    server.get("/401", (_, res) => res.status(401).render("error", { title: error[401].statusMessage, message: error[401].message }));
-    server.get("/403", (_, res) => res.status(403).render("error", { title: error[403].statusMessage, message: error[403].message }));
-    server.get("/404", (_, res) => res.status(404).render("error", { title: error[404].statusMessage, message: error[404].message }));
-    server.get("/405", (_, res) => res.status(405).render("error", { title: error[405].statusMessage, message: error[405].message }));
-    server.get("/406", (_, res) => res.status(406).render("error", { title: error[406].statusMessage, message: error[406].message }));
-    server.get("/408", (_, res) => res.status(408).render("error", { title: error[408].statusMessage, message: error[408].message }));
-    server.get("/410", (_, res) => res.status(410).render("error", { title: error[410].statusMessage, message: error[410].message }));
-    server.get("/429", (_, res) => res.status(429).render("error", { title: error[429].statusMessage, message: error[429].message }));
-    server.get("/500", (_, res) => res.status(500).render("error", { title: error[500].statusMessage, message: error[500].message }));
-    server.get("/501", (_, res) => res.status(501).render("error", { title: error[501].statusMessage, message: error[501].message }));
-    server.get("/505", (_, res) => res.status(505).render("error", { title: error[505].statusMessage, message: error[505].message }));
-    server.get("/507", (_, res) => res.status(507).render("error", { title: error[507].statusMessage, message: error[507].message }));
+
+    Object.values(error).forEach((e) => {
+        server.get(`/${e.statusCode}`, (_, res) => res.status(e.statusCode).render("error", { title: e.statusMessage, message: e.message }));
+    });
 
     server.get("*", (req, res) => {
         if (req.originalUrl.includes("/api")) {
