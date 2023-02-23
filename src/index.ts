@@ -1,21 +1,29 @@
 import Logger from "~/utils/Logger";
+import Router from "~/api/Router";
 import chalk from "chalk";
 import compression from "compression";
 import { constants } from "zlib";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { existsSync } from "fs";
 import express from "express";
+import fs from "fs/promises";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import settings from "~/settings";
 
-import { blocker, error, robots } from "~/utils/general";
+import { blocker, httpError, robots } from "~/utils/general";
 
 const server = express();
 const logger = new Logger();
+const api = new Router(logger);
 
-function rawBodySaver(req: express.Request, _res: express.Response, buf: Buffer, encoding: BufferEncoding): void {
+const thumbnails = path.join(__dirname, "..", "thumbnails");
+const images = path.join(__dirname, "..", "images");
+const files = path.join(__dirname, "..", "files");
+
+function rawBodySaver(req: express.Request, _: express.Response, buf: Buffer, encoding: BufferEncoding): void {
     if (buf && buf.length) {
         req.rawBody = buf.toString(encoding || "utf8");
     }
@@ -55,11 +63,23 @@ morgan.token<express.Request, express.Response>("status-colored", (_req, res) =>
     return "";
 });
 
-function main(): void {
+async function main(): Promise<void> {
+    await api.init();
+
+
+    if (!existsSync(thumbnails) && !existsSync(images) && !existsSync(files)) {
+        await fs.mkdir(thumbnails);
+        await fs.mkdir(images);
+        await fs.mkdir(files);
+    }
+
+
+
     server.set("env", settings.env);
     server.set("json spaces", 4);
     server.set("view engine", "ejs");
     server.set("views", path.join(__dirname, "views"));
+    server.disable("x-powered-by");
 
     server.use(
         morgan(":type-colored :req[cf-connecting-ip] :method :url :status-colored :response-time[0]ms ':user-agent'", {
@@ -75,23 +95,31 @@ function main(): void {
     server.use(express.json({ verify: rawBodySaver }));
     server.use(express.urlencoded({ verify: rawBodySaver, extended: true }));
     server.use(express.raw({ verify: rawBodySaver }));
-    server.use(express.static(path.join(__dirname, "..", "images")));
-    // server.use(api.path, api.router);
+
+    // Saved files, uploaded using the api
+    server.use("/thumbnails", express.static(thumbnails, { index: false, extensions: ["jpg"] }));
+    server.use("/images", express.static(images, { index: false, extensions: ["png", "jpg", "jpeg", "webp"] }));
+    server.use("/files", express.static(files, { index: false, extensions: ["txt"] }));
+
+    // API routes
+    server.use(api.path, api.router);
+
+    // TODO: Remove redirect when frontend is build
+    server.get("/", (_, res) => res.redirect(302, "/api"));
 
     server.get("/robots.txt", (_req, res) => {
-        res.header("Content-Type", "text/plain").send(robots({ userAgent: settings.crawlers, disallow: "*", crawlDelay: "10" }));
+        res.header("Content-Type", "text/plain").send(robots({ userAgent: settings.crawlers, disallow: ["/api", "/thumbnails", "/images", "/files"], crawlDelay: "10" }));
     });
 
-    server.get("/", (_, res) => res.redirect(301, "/api"));
-    server.get("/api", (_, res) => res.status(200).json(settings.api));
-
-    Object.values(error).forEach((e) => {
+    // Serve error pages
+    Object.values(httpError).forEach((e) => {
         server.get(`/${e.statusCode}`, (_, res) => res.status(e.statusCode).render("error", { title: e.statusMessage, message: e.message }));
     });
 
+    // Handle unknown url paths
     server.get("*", (req, res) => {
         if (req.originalUrl.includes("/api")) {
-            res.status(404).json(error[404]);
+            res.status(404).json(httpError[404]);
         } else {
             res.redirect("/404");
         }
@@ -102,4 +130,4 @@ function main(): void {
     });
 }
 
-main();
+main().catch((e) => logger.error("MAIN", e));

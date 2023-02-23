@@ -102,3 +102,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Static files directories
+files/
+images/
+thumbnails/

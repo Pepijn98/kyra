@@ -1,5 +1,9 @@
+import crypto from "crypto";
+
 import { Errors, RobotsConfig } from "~/types/General";
 import { NextFunction, Request, RequestHandler, Response } from "express";
+
+const rfile = /\.(j|t)s$/iu;
 
 function as<T>(value: T): T {
     return value;
@@ -7,6 +11,17 @@ function as<T>(value: T): T {
 
 function wait(ms: number): Promise<void> {
     return new Promise((r) => setTimeout(r, ms));
+}
+
+function generateToken(): Promise<string> {
+    return new Promise((resolve, reject) => {
+        crypto.randomBytes(64, (error, buffer) => {
+            if (error) {
+                reject(error);
+            }
+            resolve(buffer.toString("hex"));
+        });
+    });
 }
 
 function blocker(userAgents: string[]): RequestHandler {
@@ -71,7 +86,7 @@ function robots(config: RobotsConfig | RobotsConfig[]): string {
     }
 }
 
-const error: Errors = {
+const httpError: Errors = {
     400: {
         statusCode: 400,
         statusMessage: "400 Bad Request",
@@ -101,6 +116,11 @@ const error: Errors = {
         statusCode: 406,
         statusMessage: "406 Not Acceptable",
         message: "Unable to respond with the appropriate content-type"
+    },
+    409: {
+        statusCode: 409,
+        statusMessage: "409 Conflict",
+        message: "The uploaded resource does already exist"
     },
     408: {
         statusCode: 408,
@@ -140,9 +160,11 @@ const error: Errors = {
 };
 
 export {
+    rfile,
     as,
     wait,
+    generateToken,
     blocker,
     robots,
-    error
+    httpError
 };

@@ -27,6 +27,7 @@ interface ApiSettings {
 
 interface Settings {
     env: string;
+    host: string;
     port: number;
     blacklist: string[];
     crawlers: string[];

@@ -1,4 +1,6 @@
-type StatusCodes = 400 | 401 | 403 | 404 | 405 | 406 | 408 | 410 | 429 | 500 | 501 | 507 | 505;
+import Router from "~/api/Router";
+
+type StatusCodes = 400 | 401 | 403 | 404 | 405 | 406 | 408 | 409 | 410 | 429 | 500 | 501 | 507 | 505;
 
 interface ErrorResponse {
     statusCode: number;
@@ -18,9 +20,16 @@ interface RobotsConfig {
     host?: string | string[];
 }
 
+interface Context {
+    path: string;
+    method: string;
+    controller: Router;
+}
+
 export {
     StatusCodes,
     ErrorResponse,
     Errors,
-    RobotsConfig
+    RobotsConfig,
+    Context
 };
