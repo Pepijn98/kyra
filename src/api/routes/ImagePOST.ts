@@ -79,14 +79,10 @@ export default class extends Base {
                     .toFile(path.join(__dirname, "..", "..", "..", "thumbnails", req.user!.id, `${fileName}.jpg`));
 
                 await sharp(req.file.buffer)
-                    .resize(2000, 2000, {
+                    .resize(5000, 5000, {
                         fit: "inside",
-                        withoutEnlargement: true,
-                        background: {
-                            alpha: 0
-                        }
+                        withoutEnlargement: true
                     })
-                    .flatten()
                     .toFile(path.join(__dirname, "..", "..", "..", "images", req.user!.id, `${fileName}.${fileExt}`));
 
                 await Images.create({
@@ -98,9 +94,9 @@ export default class extends Base {
                 });
 
                 return res.status(200).json({
-                    thumbnailUrl: `${settings.host}/thumbnails/${fileName}.jpg`,
-                    imageUrl: `${settings.host}/images/${fileName}.${fileExt}`,
-                    deletionUrl: `${settings.host}/api/image/${fileName}`
+                    thumbnailUrl: `${settings.host}/thumbnails/${req.user!.id}/${fileName}.jpg`,
+                    imageUrl: `${settings.host}/images/${req.user!.id}/${fileName}.${fileExt}`,
+                    deletionUrl: `${settings.host}/api/image/${req.user!.id}/${fileName}`
                 });
             });
         } catch (error) {
