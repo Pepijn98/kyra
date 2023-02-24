@@ -96,7 +96,7 @@ export default class extends Base {
                 return res.status(200).json({
                     thumbnailUrl: `${settings.host}/thumbnails/${req.user!.id}/${fileName}.jpg`,
                     imageUrl: `${settings.host}/images/${req.user!.id}/${fileName}.${fileExt}`,
-                    deletionUrl: `${settings.host}/api/image/${req.user!.id}/${fileName}`
+                    deletionUrl: `${settings.host}/api/image/${fileName}`
                 });
             });
         } catch (error) {
