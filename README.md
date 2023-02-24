@@ -3,6 +3,7 @@ Private file hosting
 
 # TODO
 ### Api
+- Check for user folder before saving file
 - Add login routes
     - POST,     `/auth/login` (only for frontend)
     - GET,      `/auth/me` (only for frontend)
