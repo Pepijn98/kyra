@@ -98,7 +98,7 @@ async function main(): Promise<void> {
 
     // Saved files, uploaded using the api
     server.use("/thumbnails", express.static(thumbnails, { index: false, extensions: ["jpg"] }));
-    server.use("/images", express.static(images, { index: false, extensions: ["png", "jpg", "jpeg", "webp"] }));
+    server.use("/images", express.static(images, { index: false, extensions: ["png", "jpg", "jpeg", "webp", "gif"] }));
     server.use("/files", express.static(files, { index: false, extensions: ["txt"] }));
 
     // API routes

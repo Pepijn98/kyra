@@ -9,7 +9,7 @@ import rateLimit from "express-rate-limit";
 
 export default class extends Base {
     constructor(controller: Router) {
-        super({ path: "/image/:id", method: "DELETE", controller });
+        super({ path: "/image/:name", method: "DELETE", controller });
 
         this.controller.router.delete(
             this.path,
@@ -26,7 +26,7 @@ export default class extends Base {
 
     async run(req: express.Request, res: express.Response): Promise<void> {
         try {
-            const image = await Images.findOne({ uid: req.params.id }).exec();
+            const image = await Images.findOne({ name: req.params.name }).exec();
             if (!image) {
                 res.status(404).json(httpError[404]);
                 return;

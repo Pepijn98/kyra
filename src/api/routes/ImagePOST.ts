@@ -1,9 +1,11 @@
 import Base from "~/api/Base";
 import Images from "~/models/Image";
 import Router from "~/api/Router";
+import { existsSync } from "fs";
 import express from "express";
 import { httpError } from "~/utils/general";
 import md5 from "md5";
+import { mkdir } from "fs/promises";
 import multer from "multer";
 import path from "path";
 import rateLimit from "express-rate-limit";
@@ -17,7 +19,7 @@ const upload = multer({
         fileSize: 3145728
     },
     fileFilter(_, file, cb) {
-        if (!["png", "jpg", "jpeg", "webp"].includes(file.mimetype.replace("image/", "")))
+        if (!["png", "jpg", "jpeg", "webp", "gif"].includes(file.mimetype.replace("image/", "")))
             return cb(new Error("Invalid file type"));
 
         return cb(null, true);
@@ -52,10 +54,19 @@ export default class extends Base {
                     return res.status(400).json(httpError[400]);
                 }
 
+                const thumbnailPath = path.join(__dirname, "..", "..", "..", "thumbnails", req.user!.id);
+                const imagePath = path.join(__dirname, "..", "..", "..", "images", req.user!.id);
+
+                // Make sure user folder exists
+                if (!existsSync(thumbnailPath) && !existsSync(imagePath)) {
+                    await mkdir(thumbnailPath);
+                    await mkdir(imagePath);
+                }
+
                 const hash = md5(req.file.buffer);
 
-                const existing = await Images.findOne({ hash, uploader: req.user!.id }).exec();
-                if (existing) {
+                const exists = await Images.findOne({ hash, uploader: req.user!.id }).exec();
+                if (exists) {
                     return res.status(409).json(httpError[409]);
                 }
 
@@ -76,14 +87,14 @@ export default class extends Base {
                     })
                     .flatten()
                     .jpeg({ quality: 50 })
-                    .toFile(path.join(__dirname, "..", "..", "..", "thumbnails", req.user!.id, `${fileName}.jpg`));
+                    .toFile(path.join(thumbnailPath, `${fileName}.jpg`));
 
-                await sharp(req.file.buffer)
-                    .resize(5000, 5000, {
+                await sharp(req.file.buffer, { animated: ["webp", "gif"].includes(fileExt) })
+                    .resize(2000, 2000, {
                         fit: "inside",
                         withoutEnlargement: true
                     })
-                    .toFile(path.join(__dirname, "..", "..", "..", "images", req.user!.id, `${fileName}.${fileExt}`));
+                    .toFile(path.join(imagePath, `${fileName}.${fileExt}`));
 
                 await Images.create({
                     name: fileName,
