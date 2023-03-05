@@ -1,6 +1,6 @@
 import { Document, Model, Schema, model } from "mongoose";
 
-interface ImageDoc extends Document {
+export interface Image {
     name: string;
     ext: string;
     hash: string;
@@ -8,7 +8,9 @@ interface ImageDoc extends Document {
     createdAt: string
 }
 
-const Image: Schema<ImageDoc> = new Schema<ImageDoc>({
+export type ImageModel = Image & Document;
+
+export const ImageSchema: Schema<ImageModel> = new Schema<ImageModel>({
     name: String,
     ext: String,
     hash: String,
@@ -16,11 +18,6 @@ const Image: Schema<ImageDoc> = new Schema<ImageDoc>({
     createdAt: String
 });
 
-const Images: Model<ImageDoc> = model<ImageDoc>("Images", Image);
+export const Images: Model<ImageModel> = model<ImageModel>("Images", ImageSchema);
 
 export default Images;
-export {
-    ImageDoc,
-    Image,
-    Images
-};

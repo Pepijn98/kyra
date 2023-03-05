@@ -37,8 +37,8 @@ export default class extends Base {
                 return;
             }
 
-            await fs.rm(path.join(__dirname, "..", "..", "..", "thumbnails", image.uploader, `${image.name}.jpg`), { force: true });
-            await fs.rm(path.join(__dirname, "..", "..", "..", "images", image.uploader, `${image.name}.${image.ext}`), { force: true });
+            await fs.rm(path.join(__dirname, "..", "..", "..", "..", "thumbnails", image.uploader, `${image.name}.jpg`), { force: true });
+            await fs.rm(path.join(__dirname, "..", "..", "..", "..", "images", image.uploader, `${image.name}.${image.ext}`), { force: true });
             await image.remove();
 
             res.sendStatus(204);

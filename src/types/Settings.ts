@@ -1,4 +1,4 @@
-interface MongoSettings {
+export interface MongoSettings {
     user: string;
     password: string;
     host: string;
@@ -6,17 +6,17 @@ interface MongoSettings {
     name: string;
 }
 
-interface SentrySettings {
+export interface SentrySettings {
     dsn: string;
 }
 
-interface ApiAuhtor {
+export interface ApiAuhtor {
     name: string;
     email: string;
     url: string;
 }
 
-interface ApiSettings {
+export interface ApiSettings {
     name: string;
     version: string;
     description: string;
@@ -25,20 +25,12 @@ interface ApiSettings {
     author: ApiAuhtor;
 }
 
-interface Settings {
+export interface Settings {
     env: string;
     host: string;
     port: number;
     blacklist: string[];
-    crawlers: string[];
     database: MongoSettings;
     sentry: SentrySettings;
     api: ApiSettings;
 }
-
-export {
-    MongoSettings,
-    SentrySettings,
-    ApiSettings,
-    Settings
-};

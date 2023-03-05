@@ -54,8 +54,8 @@ export default class extends Base {
                     return res.status(400).json(httpError[400]);
                 }
 
-                const thumbnailPath = path.join(__dirname, "..", "..", "..", "thumbnails", req.user!.id);
-                const imagePath = path.join(__dirname, "..", "..", "..", "images", req.user!.id);
+                const thumbnailPath = path.join(__dirname, "..", "..", "..", "..", "thumbnails", req.user!.id);
+                const imagePath = path.join(__dirname, "..", "..", "..", "..", "images", req.user!.id);
 
                 // Make sure user folder exists
                 if (!existsSync(thumbnailPath) && !existsSync(imagePath)) {

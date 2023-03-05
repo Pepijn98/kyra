@@ -3,17 +3,17 @@ import crypto from "crypto";
 import { Errors, RobotsConfig } from "~/types/General";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
-const rfile = /\.(j|t)s$/iu;
+export const rfile = /\.(j|t)s$/iu;
 
-function as<T>(value: T): T {
+export function as<T>(value: T): T {
     return value;
 }
 
-function wait(ms: number): Promise<void> {
+export function wait(ms: number): Promise<void> {
     return new Promise((r) => setTimeout(r, ms));
 }
 
-function generateToken(): Promise<string> {
+export function generateToken(): Promise<string> {
     return new Promise((resolve, reject) => {
         crypto.randomBytes(64, (error, buffer) => {
             if (error) {
@@ -24,7 +24,7 @@ function generateToken(): Promise<string> {
     });
 }
 
-function blocker(userAgents: string[]): RequestHandler {
+export function blocker(userAgents: string[]): RequestHandler {
     return (req: Request, res: Response, next: NextFunction) => {
         if (userAgents.join("").trim().length > 0) {
             const regex = new RegExp(`^.*(${userAgents.join("|").toLowerCase()}).*$`);
@@ -40,7 +40,7 @@ function blocker(userAgents: string[]): RequestHandler {
     };
 }
 
-function parseConfig(config: RobotsConfig): string {
+export function parseConfig(config: RobotsConfig): string {
     const robots = [];
 
     if (Array.isArray(config.userAgent)) {
@@ -78,7 +78,7 @@ function parseConfig(config: RobotsConfig): string {
     return robots.join("\n");
 }
 
-function robots(config: RobotsConfig | RobotsConfig[]): string {
+export function robots(config: RobotsConfig | RobotsConfig[]): string {
     if (Array.isArray(config)) {
         return config.map((c) => parseConfig(c)).join("\n");
     } else {
@@ -86,7 +86,7 @@ function robots(config: RobotsConfig | RobotsConfig[]): string {
     }
 }
 
-const httpError: Errors = {
+export const httpError: Errors = {
     400: {
         statusCode: 400,
         statusMessage: "400 Bad Request",
@@ -157,14 +157,4 @@ const httpError: Errors = {
         statusMessage: "507 Insufficient Storage",
         message: "The server does not have sufficient storage to complete the request"
     }
-};
-
-export {
-    rfile,
-    as,
-    wait,
-    generateToken,
-    blocker,
-    robots,
-    httpError
 };

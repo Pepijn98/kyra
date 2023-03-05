@@ -8,13 +8,13 @@ Private file hosting
     - POST,     `/auth/login` (only for frontend)
     - GET,      `/auth/me` (only for frontend)
 - Add users routes (create, update, delete)
-    - GET,      `/users/:id`
-    - POST,     `/users`
-    - PATCH,    `/users/:id`
-    - DELETE,   `/users/:id`
-    - GET,      `/users/:id/uploads`
+    - GET,      `/user/:id`
+    - POST,     `/user`
+    - PATCH,    `/user/:id`
+    - DELETE,   `/user/:id`
+    - GET,      `/user/:id/uploads`
 - Add files routes (upload documents like .txt)
-    - POST,     `/files`
-    - DELETE,   `/files/:id`
+    - POST,     `/file`
+    - DELETE,   `/file/:id`
 ### Files
 - Test static files `/thumbnails`, `/images`, `files`

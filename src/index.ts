@@ -66,14 +66,11 @@ morgan.token<express.Request, express.Response>("status-colored", (_req, res) =>
 async function main(): Promise<void> {
     await api.init();
 
-
     if (!existsSync(thumbnails) && !existsSync(images) && !existsSync(files)) {
         await fs.mkdir(thumbnails);
         await fs.mkdir(images);
         await fs.mkdir(files);
     }
-
-
 
     server.set("env", settings.env);
     server.set("json spaces", 4);
@@ -108,7 +105,7 @@ async function main(): Promise<void> {
     server.get("/", (_, res) => res.redirect(302, "/api"));
 
     server.get("/robots.txt", (_req, res) => {
-        res.header("Content-Type", "text/plain").send(robots({ userAgent: settings.crawlers, disallow: ["/api", "/thumbnails", "/images", "/files"], crawlDelay: "10" }));
+        res.header("Content-Type", "text/plain").send(robots({ userAgent: settings.blacklist, disallow: "*", crawlDelay: "10" }));
     });
 
     // Serve error pages

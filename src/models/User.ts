@@ -1,26 +1,31 @@
 import { Document, Model, Schema, model } from "mongoose";
 
-interface UserDoc extends Document {
-    // uid: string;
+export enum Role {
+    OWNER,
+    ADMIN,
+    USER
+}
+
+export interface User {
+    email: string;
     username: string;
     password: string;
     token: string;
+    role: Role;
     createdAt: Date
 }
 
-const User: Schema<UserDoc> = new Schema<UserDoc>({
-    // uid: String,
+export type UserModel = User & Document;
+
+export const UserSchema: Schema<UserModel> = new Schema<UserModel>({
+    email: String,
     username: String,
     password: String,
     token: String,
+    role: { type: Number, enum: Object.values(Role) },
     createdAt: Date
 });
 
-const Users: Model<UserDoc> = model<UserDoc>("Users", User);
+export const Users: Model<UserModel> = model<UserModel>("Users", UserSchema);
 
 export default Users;
-export {
-    UserDoc,
-    User,
-    Users
-};

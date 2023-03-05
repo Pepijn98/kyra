@@ -1,18 +1,18 @@
 import Router from "~/api/Router";
 
-type StatusCodes = 400 | 401 | 403 | 404 | 405 | 406 | 408 | 409 | 410 | 429 | 500 | 501 | 507 | 505;
+export type StatusCodes = 400 | 401 | 403 | 404 | 405 | 406 | 408 | 409 | 410 | 429 | 500 | 501 | 507 | 505;
 
-interface ErrorResponse {
+export interface ErrorResponse {
     statusCode: number;
     statusMessage: string;
     message: string;
 }
 
-type Errors = {
+export type Errors = {
     [T in StatusCodes]: ErrorResponse;
 };
 
-interface RobotsConfig {
+export interface RobotsConfig {
     userAgent: string | string[];
     disallow: string | string[];
     crawlDelay?: string;
@@ -20,16 +20,8 @@ interface RobotsConfig {
     host?: string | string[];
 }
 
-interface Context {
+export interface Context {
     path: string;
     method: string;
     controller: Router;
 }
-
-export {
-    StatusCodes,
-    ErrorResponse,
-    Errors,
-    RobotsConfig,
-    Context
-};
