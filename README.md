@@ -2,6 +2,11 @@
 Private file hosting
 
 # TODO
+- blacklist IPs that look for wordpress, wp, .php, wp-login
+- backlist user-agent `-`
+- block requests that do not have a user-agent
+- save avatars as `kyra.vdbroek.dev/avatars/{id}/{name}.png`
+
 ### **Add auth routes:**
 | Method | Path          | Desc                       | Status |
 | :-     | :-            | :-                         | :-:    |
@@ -9,13 +14,14 @@ Private file hosting
 | GET    | `/auth/me`    | Get current user           | ✕      |
 
 ### **Add user routes:**
-| Method | Path                | Desc                               | Status |
-| :-     | :-                  | :-                                 | :-:    |
-| GET    | `/user/:id`         | Get specific user                  | ✕      |
-| POST   | `/user`             | Create new user                    | ✕      |
-| PATCH  | `/user/:id`         | Update specific user               | ✕      |
-| DELETE | `/user/:id`         | Delete specific user               | ✕      |
-| GET    | `/user/:id/uploads` | Get all uploads from specific user | ✕      |
+| Method | Path                    | Desc                               | Status |
+| :-     | :-                      | :-                                 | :-:    |
+| GET    | `/user/:id`             | Get specific user                  | ✕      |
+| POST   | `/user`                 | Create new user                    | ✕      |
+| PATCH  | `/user/:id`             | Update specific user               | ✕      |
+| DELETE | `/user/:id`             | Delete specific user               | ✕      |
+| GET    | `/user/:id/uploads`     | Get all uploads from specific user | ✕      |
+| GET    | `/user/:id/reset-token` | Reset user's token                 | ✕      |
 
 ### **Add files routes:**
 | Method | Path        | Desc                 | Status |
