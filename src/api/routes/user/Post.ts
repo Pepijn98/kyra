@@ -3,7 +3,7 @@ import Router from "~/api/Router";
 import bcrypt from "bcrypt";
 
 import { Request, Response } from "express";
-import Users, { PublicUser, Role, User } from "~/models/User";
+import { Role, User, UserModel, Users } from "~/models/User";
 import { generateToken, httpError } from "~/utils/general";
 
 interface Signup {
@@ -13,13 +13,28 @@ interface Signup {
     role: Role;
 }
 
+export class SignupUser {
+    email: string;
+    username: string;
+    token: string;
+    role: Role;
+    createdAt: Date;
+
+    constructor(data: UserModel | User) {
+        this.email = data.email;
+        this.username = data.username;
+        this.token = data.token;
+        this.role = data.role;
+        this.createdAt = data.createdAt;
+    }
+}
+
 export default class extends Base {
     constructor(controller: Router) {
         super({ path: "/user", method: "POST", controller });
 
         this.controller.router.post(
             this.path,
-            this.authorize.bind(this),
             this.rateLimit,
             this.run.bind(this)
         );
@@ -52,7 +67,7 @@ export default class extends Base {
                 statusMessage: "OK",
                 message: "Successfully created user",
                 data: {
-                    user: new PublicUser(newUser)
+                    user: new SignupUser(newUser)
                 }
             });
         } catch (error) {

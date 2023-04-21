@@ -9,7 +9,7 @@ export default class extends Base {
     constructor(controller: Router) {
         super({ path: "/user/:id", method: "GET", controller });
 
-        this.controller.router.post(
+        this.controller.router.get(
             this.path,
             this.authorize.bind(this),
             this.rateLimit,

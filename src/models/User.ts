@@ -22,7 +22,7 @@ export const UserSchema: Schema<UserModel> = new Schema<UserModel>({
     username: String,
     password: String,
     token: String,
-    role: { type: Number, enum: Object.values(Role) },
+    role: { type: Number, min: 0, max: 2, default: 2 },
     createdAt: Date
 });
 
@@ -31,14 +31,12 @@ export const Users: Model<UserModel> = model<UserModel>("Users", UserSchema);
 export class PublicUser {
     email: string;
     username: string;
-    token: string;
     role: Role;
     createdAt: Date;
 
     constructor(data: UserModel | User) {
         this.email = data.email;
         this.username = data.username;
-        this.token = data.token;
         this.role = data.role;
         this.createdAt = data.createdAt;
     }

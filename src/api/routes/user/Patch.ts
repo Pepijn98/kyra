@@ -8,7 +8,7 @@ export default class extends Base {
     constructor(controller: Router) {
         super({ path: "/user/:id", method: "PATCH", controller });
 
-        this.controller.router.post(
+        this.controller.router.patch(
             this.path,
             this.authorize.bind(this),
             this.rateLimit,
@@ -16,6 +16,7 @@ export default class extends Base {
         );
     }
 
+    // TODO: Update user fields
     async run(req: Request, res: Response): Promise<void> {
         try {
             if (!req.user) {

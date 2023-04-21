@@ -8,7 +8,7 @@ export default class extends Base {
     constructor(controller: Router) {
         super({ path: "/user/:id/uploads", method: "GET", controller });
 
-        this.controller.router.post(
+        this.controller.router.get(
             this.path,
             this.authorize.bind(this),
             this.rateLimit,
@@ -16,6 +16,7 @@ export default class extends Base {
         );
     }
 
+    // TODO: Get all user's uploads
     async run(req: Request, res: Response): Promise<void> {
         try {
             if (!req.user) {
