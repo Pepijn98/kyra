@@ -34,7 +34,7 @@ export default class extends Base {
             res.status(200).json({
                 statusCode: 200,
                 statusMessage: "OK",
-                message: "Successfully verified",
+                message: "Successfully found user",
                 data: {
                     user: new PublicUser(user)
                 }

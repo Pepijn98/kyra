@@ -16,7 +16,7 @@ Private file hosting
 ### **Add user routes:**
 | Method | Path                    | Desc                               | Status |
 | :-     | :-                      | :-                                 | :-:    |
-| GET    | `/user/:id`             | Get specific user                  | ✕      |
+| GET    | `/user/:id`             | Get specific user                  | ✓      |
 | POST   | `/user`                 | Create new user                    | ✕      |
 | PATCH  | `/user/:id`             | Update specific user               | ✕      |
 | DELETE | `/user/:id`             | Delete specific user               | ✕      |

@@ -3,6 +3,7 @@ import Router from "~/api/Router";
 import { httpError } from "~/utils/general";
 import rateLimit from "express-rate-limit";
 
+import { PublicUser, Users } from "~/models/User";
 import { Request, Response } from "express";
 
 export default class extends Base {
@@ -24,7 +25,8 @@ export default class extends Base {
 
     async run(req: Request, res: Response): Promise<void> {
         try {
-            if (!req.user) {
+            const user = await Users.findOne({ id: req.params.id }).exec();
+            if (!user) {
                 res.status(404).json(httpError[404]);
                 return;
             }
@@ -32,8 +34,10 @@ export default class extends Base {
             res.status(200).json({
                 statusCode: 200,
                 statusMessage: "OK",
-                message: "Success",
-                data: {}
+                message: "Successfully found user",
+                data: {
+                    user: new PublicUser(user)
+                }
             });
         } catch (error) {
             this.handleException(res, error);
