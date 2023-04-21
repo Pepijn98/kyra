@@ -6,7 +6,11 @@ import settings from "~/settings";
 export default class extends Base {
     constructor(controller: Router) {
         super({ path: "/", method: "GET", controller });
-        this.controller.router.get(this.path, this.run.bind(this));
+
+        this.controller.router.get(
+            this.path,
+            this.run.bind(this)
+        );
     }
 
     async run(_: express.Request, res: express.Response): Promise<void> {

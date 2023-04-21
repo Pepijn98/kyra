@@ -1,9 +1,11 @@
 import { Context } from "~/types/General";
 import Logger from "~/utils/Logger";
 import Router from "~/api/Router";
-import Users from "~/models/User";
-import express from "express";
 import { httpError } from "~/utils/general";
+
+import { NextFunction, Request, Response } from "express";
+import { RateLimitRequestHandler, rateLimit } from "express-rate-limit";
+import Users, { Role } from "~/models/User";
 
 export default abstract class Base {
     path: string;
@@ -18,9 +20,21 @@ export default abstract class Base {
         this.logger = ctx.controller.logger;
     }
 
-    abstract run(req: express.Request, res: express.Response): Promise<unknown>;
+    abstract run(req: Request, res: Response): Promise<unknown>;
 
-    handleException(res: express.Response, error: unknown): void {
+    get rateLimit(): RateLimitRequestHandler {
+        return rateLimit({
+            windowMs: 10 * 1000,
+            max: 2,
+            message: httpError[429],
+            statusCode: 429,
+            skip: (req: Request): boolean => {
+                return (req.user && (req.user.role === Role.ADMIN || req.user.role === Role.OWNER) ? true : false);
+            }
+        });
+    }
+
+    handleException(res: Response, error: unknown): void {
         if (error instanceof Error) {
             const message = error.message ? error.message : error.toString();
 
@@ -37,7 +51,7 @@ export default abstract class Base {
         res.status(500).json(httpError[500]);
     }
 
-    async authorize(req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> {
+    async authorize(req: Request, res: Response, next: NextFunction): Promise<void> {
         if (!req.headers.authorization) {
             res.status(401).json(httpError[401]);
             return;
