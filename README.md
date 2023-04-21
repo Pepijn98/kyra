@@ -17,7 +17,7 @@ Private file hosting
 | Method | Path                    | Desc                               | Status |
 | :-     | :-                      | :-                                 | :-:    |
 | GET    | `/user/:id`             | Get specific user                  | ✓      |
-| POST   | `/user`                 | Create new user                    | ✕      |
+| POST   | `/user`                 | Create new user                    | ✓      |
 | PATCH  | `/user/:id`             | Update specific user               | ✕      |
 | DELETE | `/user/:id`             | Delete specific user               | ✕      |
 | GET    | `/user/:id/uploads`     | Get all uploads from specific user | ✕      |
