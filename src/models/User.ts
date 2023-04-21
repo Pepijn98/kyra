@@ -28,4 +28,20 @@ export const UserSchema: Schema<UserModel> = new Schema<UserModel>({
 
 export const Users: Model<UserModel> = model<UserModel>("Users", UserSchema);
 
+export class PublicUser {
+    email: string;
+    username: string;
+    token: string;
+    role: Role;
+    createdAt: Date;
+
+    constructor(data: UserModel | User) {
+        this.email = data.email;
+        this.username = data.username;
+        this.token = data.token;
+        this.role = data.role;
+        this.createdAt = data.createdAt;
+    }
+}
+
 export default Users;

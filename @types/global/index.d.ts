@@ -1,10 +1,10 @@
-import { UserDoc } from "../../src/models/User";
+import { User } from "../../src/models/User";
 
 declare global {
     namespace Express {
         interface Request {
             rawBody: string;
-            user: UserDoc | null
+            user: User | null;
         }
     }
 }

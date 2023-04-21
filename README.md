@@ -5,13 +5,13 @@ Private file hosting
 - blacklist IPs that look for wordpress, wp, .php, wp-login
 - backlist user-agent `-`
 - block requests that do not have a user-agent
-- save avatars as `/avatars/{id}/{name}.png` and `{name}` in DB
+- save avatars as `/avatars/{id}/{name}.{jpg,png,webp}` and `{name}` in DB
 
 ### **Add auth routes:**
 | Method | Path          | Desc                       | Status |
 | :-     | :-            | :-                         | :-:    |
 | POST   | `/auth/login` | Login to the web dashboard | ✓      |
-| GET    | `/auth/me`    | Get current user           | ✕      |
+| GET    | `/auth/me`    | Get current user           | ✓      |
 
 ### **Add user routes:**
 | Method | Path                    | Desc                               | Status |

@@ -44,7 +44,6 @@ export default abstract class Base {
         }
 
         req.user = await Users.findOne({ token: req.headers.authorization }).exec();
-
         if (!req.user) {
             res.status(401).json(httpError[401]);
             return;
