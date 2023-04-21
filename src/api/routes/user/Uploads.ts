@@ -16,7 +16,7 @@ export default class extends Base {
         );
     }
 
-    // TODO: Get all user's uploads
+    //TODO - Get all user's uploads & figure out some pagination
     async run(req: Request, res: Response): Promise<void> {
         try {
             if (!req.user) {

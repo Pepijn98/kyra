@@ -147,6 +147,11 @@ export const httpError: Errors = {
         statusMessage: "501 Not Implemented",
         message: "The server either does not recognize the request method, or it lacks the ability to fulfil the request"
     },
+    503: {
+        statusCode: 503,
+        statusMessage: "503 Service Unavailable",
+        message: "The requested service is currently unavailable"
+    },
     505: {
         statusCode: 505,
         statusMessage: "505 HTTP Version Not Supported",

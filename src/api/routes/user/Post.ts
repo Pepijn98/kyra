@@ -1,6 +1,8 @@
 import Base from "~/api/Base";
 import Router from "~/api/Router";
 import bcrypt from "bcrypt";
+import fs from "fs/promises";
+import path from "path";
 
 import { Request, Response } from "express";
 import { Role, User, UserModel, Users } from "~/models/User";
@@ -61,6 +63,13 @@ export default class extends Base {
             } satisfies User);
 
             await newUser.save();
+
+            // Create user folders for all images, thumbnails and files
+            await Promise.all([
+                fs.mkdir(path.join(__dirname, "..", "..", "..", "..", "thumbnails", newUser.id), { recursive: true }),
+                fs.mkdir(path.join(__dirname, "..", "..", "..", "..", "images", newUser.id), { recursive: true }),
+                fs.mkdir(path.join(__dirname, "..", "..", "..", "..", "files", newUser.id), { recursive: true })
+            ]);
 
             res.status(200).json({
                 statusCode: 200,

@@ -8,7 +8,6 @@ import md5 from "md5";
 import { mkdir } from "fs/promises";
 import multer from "multer";
 import path from "path";
-import rateLimit from "express-rate-limit";
 import settings from "~/settings";
 import sharp from "sharp";
 import shortid from "shortid";
@@ -32,13 +31,8 @@ export default class extends Base {
 
         this.controller.router.post(
             this.path,
-            rateLimit({
-                windowMs: 10 * 1000,
-                max: 2,
-                message: httpError[429],
-                statusCode: 429
-            }),
             this.authorize.bind(this),
+            this.rateLimit,
             this.run.bind(this)
         );
     }

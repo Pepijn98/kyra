@@ -16,7 +16,7 @@ export default class extends Base {
         );
     }
 
-    // TODO: Update user fields
+    //TODO - Update user fields
     async run(req: Request, res: Response): Promise<void> {
         try {
             if (!req.user) {

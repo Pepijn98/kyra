@@ -5,7 +5,6 @@ import express from "express";
 import fs from "fs/promises";
 import { httpError } from "~/utils/general";
 import path from "path";
-import rateLimit from "express-rate-limit";
 
 export default class extends Base {
     constructor(controller: Router) {
@@ -13,13 +12,8 @@ export default class extends Base {
 
         this.controller.router.delete(
             this.path,
-            rateLimit({
-                windowMs: 10 * 1000,
-                max: 2,
-                message: httpError[429],
-                statusCode: 429
-            }),
             this.authorize.bind(this),
+            this.rateLimit,
             this.run.bind(this)
         );
     }
@@ -37,11 +31,18 @@ export default class extends Base {
                 return;
             }
 
-            await fs.rm(path.join(__dirname, "..", "..", "..", "..", "thumbnails", image.uploader, `${image.name}.jpg`), { force: true });
-            await fs.rm(path.join(__dirname, "..", "..", "..", "..", "images", image.uploader, `${image.name}.${image.ext}`), { force: true });
+            await Promise.all([
+                fs.rm(path.join(__dirname, "..", "..", "..", "..", "thumbnails", image.uploader, `${image.name}.jpg`), { force: true }),
+                fs.rm(path.join(__dirname, "..", "..", "..", "..", "images", image.uploader, `${image.name}.${image.ext}`), { force: true })
+            ]);
+
             await image.deleteOne();
 
-            res.sendStatus(204);
+            res.status(200).json({
+                statusCode: 200,
+                statusMessage: "OK",
+                message: "Successfully deleted image",
+            });
         } catch (error) {
             this.handleException(res, error);
         }

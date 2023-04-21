@@ -16,7 +16,7 @@ export default class extends Base {
         );
     }
 
-    // TODO: Reset user's token
+    //TODO - Reset user's token
     async run(req: Request, res: Response): Promise<void> {
         try {
             if (!req.user) {
