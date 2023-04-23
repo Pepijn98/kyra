@@ -27,7 +27,7 @@ export default class extends Base {
             res.status(200).json({
                 statusCode: 200,
                 statusMessage: "OK",
-                message: "Success",
+                message: "Successfully",
                 data: {}
             });
         } catch (error) {

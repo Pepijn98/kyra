@@ -1,8 +1,9 @@
 import Base from "~/api/Base";
 import Router from "~/api/Router";
-import { httpError } from "~/utils/general";
 
 import { Request, Response } from "express";
+import Users, { Role } from "~/models/User";
+import { generateToken, httpError } from "~/utils/general";
 
 export default class extends Base {
     constructor(controller: Router) {
@@ -16,7 +17,6 @@ export default class extends Base {
         );
     }
 
-    //TODO - Reset user's token
     async run(req: Request, res: Response): Promise<void> {
         try {
             if (!req.user) {
@@ -24,11 +24,36 @@ export default class extends Base {
                 return;
             }
 
+            // Only ADMIN and OWNER roles can reset tokens for other users
+            if (req.user.id !== req.params.id && req.user.role === Role.USER) {
+                res.status(403).json(httpError[403]);
+                return;
+            }
+
+            // Get user from param id
+            const user = await Users.findById(req.params.id).exec();
+            if (!user) {
+                res.status(404).json(httpError[404]);
+                return;
+            }
+
+            const newToken = await generateToken();
+
+            // Check if actually updated
+            const result = await user.updateOne({ token: newToken }).exec();
+            if (!result || !result.modifiedCount || result.modifiedCount < 1) {
+                res.status(500).json(httpError[500]);
+                return;
+            }
+
+            // Send new token
             res.status(200).json({
                 statusCode: 200,
                 statusMessage: "OK",
-                message: "Success",
-                data: {}
+                message: "Successfully generated new token",
+                data: {
+                    token: newToken
+                }
             });
         } catch (error) {
             this.handleException(res, error);

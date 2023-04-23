@@ -16,13 +16,15 @@ interface Signup {
 }
 
 export class SignupUser {
+    id: string;
     email: string;
     username: string;
     token: string;
     role: Role;
     createdAt: Date;
 
-    constructor(data: UserModel | User) {
+    constructor(data: UserModel) {
+        this.id = data._id;
         this.email = data.email;
         this.username = data.username;
         this.token = data.token;
