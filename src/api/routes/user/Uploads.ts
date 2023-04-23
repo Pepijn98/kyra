@@ -6,9 +6,9 @@ import { Request, Response } from "express";
 import { httpError, isNumeric } from "~/utils/general";
 
 type Query = {
-    page: number;
-    limit: number;
-};
+    page: number
+    limit: number
+}
 
 function validateQuery(query: Record<string, unknown>): Query | null {
     if (!query.page) return null;

@@ -1,14 +1,14 @@
 import { Document, Model, Schema, model } from "mongoose";
 
 export type Image = {
-    name: string;
-    ext: string;
-    hash: string;
-    uploader: string;
+    name: string
+    ext: string
+    hash: string
+    uploader: string
     createdAt: string
-};
+}
 
-export type ImageModel = Image & Document & { _id: string };
+export type ImageModel = Image & Document & { _id: string }
 
 export const ImageSchema: Schema<ImageModel> = new Schema<ImageModel>({
     name: String,

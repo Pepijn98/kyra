@@ -7,22 +7,21 @@ export enum Role {
 }
 
 export type User = {
-    email: string;
-    username: string;
-    password: string;
-    token: string;
-    role: Role;
+    email: string
+    username: string
+    password: string
+    token: string
+    role: Role
     createdAt: Date
-};
+}
 
-export type PublicUser = Omit<User, "email" | "password" | "token"> & { id: string };
-export type LoginUser = Omit<User, "password"> & { id: string };
+export type PublicUser = Omit<User, "email" | "password" | "token"> & { id: string }
+export type LoginUser = Omit<User, "password"> & { id: string }
 
 export type UserModel = User & Document & {
-    publicData
-    : () => PublicUser
+    publicData: () => PublicUser
     loginData: () => LoginUser
-};
+}
 
 export const UserSchema: Schema<UserModel> = new Schema<UserModel>({
     email: String,

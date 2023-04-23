@@ -6,9 +6,9 @@ import { httpError } from "~/utils/general";
 
 import { Request, Response } from "express";
 
-interface Login {
-    email: string;
-    password: string;
+type Login = {
+    email: string
+    password: string
 }
 
 export default class extends Base {

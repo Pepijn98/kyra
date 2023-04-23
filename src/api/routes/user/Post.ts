@@ -5,32 +5,14 @@ import fs from "fs/promises";
 import path from "path";
 
 import { Request, Response } from "express";
-import { Role, User, UserModel, Users } from "~/models/User";
+import { Role, User, Users } from "~/models/User";
 import { generateToken, httpError } from "~/utils/general";
 
-interface Signup {
+type Signup = {
     email: string;
     username: string;
     password: string;
     role: Role;
-}
-
-export class SignupUser {
-    id: string;
-    email: string;
-    username: string;
-    token: string;
-    role: Role;
-    createdAt: Date;
-
-    constructor(data: UserModel) {
-        this.id = data._id;
-        this.email = data.email;
-        this.username = data.username;
-        this.token = data.token;
-        this.role = data.role;
-        this.createdAt = data.createdAt;
-    }
 }
 
 export default class extends Base {
@@ -44,6 +26,8 @@ export default class extends Base {
         );
     }
 
+    //TODO - Check if username already exists
+    //     - Check if email already exists
     async run(req: Request, res: Response): Promise<void> {
         try {
             const body: Signup = req.body;
@@ -78,7 +62,7 @@ export default class extends Base {
                 statusMessage: "OK",
                 message: "Successfully created user",
                 data: {
-                    user: new SignupUser(newUser)
+                    user: newUser.loginData()
                 }
             });
         } catch (error) {

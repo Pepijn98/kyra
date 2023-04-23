@@ -18,10 +18,10 @@ Private file hosting
 | :-     | :-                      | :-                                 | :-:    |
 | GET    | `/user/:id`             | Get specific user                  | ✓      |
 | POST   | `/user`                 | Create new user                    | ✓      |
-| PATCH  | `/user/:id`             | Update specific user               | ✕      |
-| DELETE | `/user/:id`             | Delete specific user               | ✕      |
-| GET    | `/user/:id/uploads`     | Get all uploads from specific user | ✕      |
-| GET    | `/user/:id/reset-token` | Reset user's token                 | ✕      |
+| PATCH  | `/user/:id`             | Update specific user               | ✓      |
+| DELETE | `/user/:id`             | Delete specific user               | ✓      |
+| GET    | `/user/:id/uploads`     | Get all uploads from specific user | ✓      |
+| GET    | `/user/:id/reset-token` | Reset user's token                 | ✓      |
 
 ### **Add files routes:**
 | Method | Path        | Desc                 | Status |
