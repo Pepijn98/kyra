@@ -2,7 +2,7 @@ import Base from "~/api/Base";
 import Router from "~/api/Router";
 
 import { Request, Response } from "express";
-import Users, { Role } from "~/models/User";
+import { Role, Users } from "~/models/User";
 import { generateToken, httpError } from "~/utils/general";
 
 export default class extends Base {

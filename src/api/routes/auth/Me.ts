@@ -1,5 +1,4 @@
 import Base from "~/api/Base";
-import { PublicUser } from "~/models/User";
 import Router from "~/api/Router";
 
 import { Request, Response } from "express";
@@ -23,7 +22,7 @@ export default class extends Base {
                 statusMessage: "OK",
                 message: "Successfully found user",
                 data: {
-                    user: new PublicUser(req.user!)
+                    user: req.user!.loginData()
                 }
             });
         } catch (error) {

@@ -5,7 +5,7 @@ import { httpError } from "~/utils/general";
 
 import { NextFunction, Request, Response } from "express";
 import { RateLimitRequestHandler, rateLimit } from "express-rate-limit";
-import Users, { Role } from "~/models/User";
+import { Role, Users } from "~/models/User";
 
 export default abstract class Base {
     path: string;

@@ -1,14 +1,14 @@
 import { Document, Model, Schema, model } from "mongoose";
 
-export interface Image {
+export type Image = {
     name: string;
     ext: string;
     hash: string;
     uploader: string;
     createdAt: string
-}
+};
 
-export type ImageModel = Image & Document;
+export type ImageModel = Image & Document & { _id: string };
 
 export const ImageSchema: Schema<ImageModel> = new Schema<ImageModel>({
     name: String,
@@ -18,6 +18,12 @@ export const ImageSchema: Schema<ImageModel> = new Schema<ImageModel>({
     createdAt: String
 });
 
-export const Images: Model<ImageModel> = model<ImageModel>("Images", ImageSchema);
+ImageSchema.set("toJSON", {
+    virtuals: true,
+    transform: (_doc, converted) => {
+        delete converted._id;
+        delete converted.__v;
+    }
+});
 
-export default Images;
+export const Images: Model<ImageModel> = model<ImageModel>("Images", ImageSchema);

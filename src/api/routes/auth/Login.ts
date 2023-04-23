@@ -1,30 +1,14 @@
 import Base from "~/api/Base";
 import Router from "~/api/Router";
+import { Users } from "~/models/User";
 import bcrypt from "bcrypt";
 import { httpError } from "~/utils/general";
 
 import { Request, Response } from "express";
-import { Role, User, UserModel, Users } from "~/models/User";
 
 interface Login {
     email: string;
     password: string;
-}
-
-export class LoginUser {
-    email: string;
-    username: string;
-    token: string;
-    role: Role;
-    createdAt: Date;
-
-    constructor(data: UserModel | User) {
-        this.email = data.email;
-        this.username = data.username;
-        this.token = data.token;
-        this.role = data.role;
-        this.createdAt = data.createdAt;
-    }
 }
 
 export default class extends Base {
@@ -62,7 +46,7 @@ export default class extends Base {
                 statusMessage: "OK",
                 message: "Successfully verified",
                 data: {
-                    user: new LoginUser(user)
+                    user: user.loginData()
                 }
             });
         } catch (error) {

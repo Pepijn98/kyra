@@ -6,16 +6,23 @@ export enum Role {
     USER
 }
 
-export interface User {
+export type User = {
     email: string;
     username: string;
     password: string;
     token: string;
     role: Role;
     createdAt: Date
-}
+};
 
-export type UserModel = User & Document & { _id: string };
+export type PublicUser = Omit<User, "email" | "password" | "token"> & { id: string };
+export type LoginUser = Omit<User, "password"> & { id: string };
+
+export type UserModel = User & Document & {
+    publicData
+    : () => PublicUser
+    loginData: () => LoginUser
+};
 
 export const UserSchema: Schema<UserModel> = new Schema<UserModel>({
     email: String,
@@ -26,22 +33,24 @@ export const UserSchema: Schema<UserModel> = new Schema<UserModel>({
     createdAt: Date
 });
 
+UserSchema.methods.publicData = function (): PublicUser {
+    return {
+        id: this._id,
+        username: this.username,
+        role: this.role,
+        createdAt: this.createdAt
+    };
+};
+
+UserSchema.methods.loginData = function (): LoginUser {
+    return {
+        id: this._id,
+        email: this.email,
+        username: this.username,
+        token: this.token,
+        role: this.role,
+        createdAt: this.createdAt
+    };
+};
+
 export const Users: Model<UserModel> = model<UserModel>("Users", UserSchema);
-
-export class PublicUser {
-    id: string;
-    email: string;
-    username: string;
-    role: Role;
-    createdAt: Date;
-
-    constructor(data: UserModel) {
-        this.id = data._id;
-        this.email = data.email;
-        this.username = data.username;
-        this.role = data.role;
-        this.createdAt = data.createdAt;
-    }
-}
-
-export default Users;

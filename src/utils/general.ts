@@ -13,6 +13,11 @@ export function wait(ms: number): Promise<void> {
     return new Promise((r) => setTimeout(r, ms));
 }
 
+export function isNumeric(value: string | number): boolean {
+    if (typeof value === "number") return !isNaN(value);
+    return !isNaN(parseInt(value));
+}
+
 export function generateToken(): Promise<string> {
     return new Promise((resolve, reject) => {
         crypto.randomBytes(64, (error, buffer) => {

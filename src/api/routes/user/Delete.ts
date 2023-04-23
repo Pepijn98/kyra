@@ -1,5 +1,5 @@
 import Base from "~/api/Base";
-import Images from "../../../models/Image";
+import { Images } from "~/models/Image";
 import { Role } from "~/models/User";
 import Router from "~/api/Router";
 import fs from "fs/promises";

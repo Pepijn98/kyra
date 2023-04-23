@@ -1,5 +1,5 @@
 import Base from "~/api/Base";
-import Images from "~/models/Image";
+import { Images } from "~/models/Image";
 import Router from "~/api/Router";
 import { existsSync } from "fs";
 import express from "express";
