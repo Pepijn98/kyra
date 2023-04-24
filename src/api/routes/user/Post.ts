@@ -36,6 +36,21 @@ export default class extends Base {
                 return;
             }
 
+            const resp = Object.assign({}, httpError[409]);
+            const hasEmail = await Users.exists({ email: body.email }).exec();
+            if (hasEmail) {
+                resp.message = "Failed to update user, email address is already in use";
+                res.status(409).json(resp);
+                return;
+            }
+
+            const hasName = await Users.exists({ username: body.username }).exec();
+            if (hasName) {
+                resp.message = "Failed to update user, username is already in use";
+                res.status(409).json(resp);
+                return;
+            }
+
             const hashed = await bcrypt.hash(body.password, 14);
             const token = await generateToken();
 

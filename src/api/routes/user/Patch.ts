@@ -54,13 +54,28 @@ export default class extends Base {
                 return;
             }
 
+            const resp = Object.assign({}, httpError[409]);
+            const hasEmail = await Users.exists({ email: body.email }).exec();
+            if (hasEmail) {
+                resp.message = "Failed to update user, email address is already in use";
+                res.status(409).json(resp);
+                return;
+            }
+
+            const hasName = await Users.exists({ username: body.username }).exec();
+            if (hasName) {
+                resp.message = "Failed to update user, username is already in use";
+                res.status(409).json(resp);
+                return;
+            }
+
             const toUpdate: Update = {};
             if (body.email) toUpdate.email = body.email;
             if (body.username) toUpdate.username = body.username;
             if (body.role) toUpdate.role = body.role;
             if (body.newPassword) toUpdate.password = await bcrypt.hash(body.newPassword, 14);
 
-            const user = await Users.findOneAndUpdate({ _id: req.user.id }, { $set: toUpdate }, { new: true }).exec();
+            const user = await Users.findByIdAndUpdate(req.user.id, { $set: toUpdate }, { new: true }).exec();
             if (!user) {
                 res.status(404).json(httpError[404]);
                 return;
