@@ -25,3 +25,5 @@ export type Context = {
     method: string
     controller: Router
 }
+
+export type ObjectValues<T> = T[keyof T]

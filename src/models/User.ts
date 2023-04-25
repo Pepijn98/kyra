@@ -1,21 +1,26 @@
+import { ObjectValues } from "~/types/General";
+
 import { Document, Model, Schema, model } from "mongoose";
 
-export enum Role {
-    OWNER,
-    ADMIN,
-    USER
-}
+export const Role = {
+    OWNER: 0,
+    ADMIN: 1,
+    USER: 2
+} as const;
+
+export type RoleLevel = ObjectValues<typeof Role>
 
 export type User = {
     email: string
     username: string
     password: string
     token: string
-    role: Role
+    role: RoleLevel
     createdAt: Date
 }
 
 export type PublicUser = Omit<User, "email" | "password" | "token"> & { id: string }
+
 export type LoginUser = Omit<User, "password"> & { id: string }
 
 export type UserModel = User & Document & {

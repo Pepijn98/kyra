@@ -4,14 +4,14 @@ import bcrypt from "bcrypt";
 import { httpError } from "~/utils/general";
 
 import { Request, Response } from "express";
-import { Role, Users } from "~/models/User";
+import { RoleLevel, Users } from "~/models/User";
 
 type UpdateBody = {
     email?: string
     username?: string
     password?: string
     newPassword?: string
-    role?: Role
+    role?: RoleLevel
 }
 
 type Update = Omit<UpdateBody, "newPassword">
@@ -28,8 +28,6 @@ export default class extends Base {
         );
     }
 
-    //TODO - Check if username already exists
-    //     - Check if email already exists
     async run(req: Request, res: Response): Promise<void> {
         try {
             if (!req.user) {

@@ -5,14 +5,14 @@ import fs from "fs/promises";
 import path from "path";
 
 import { Request, Response } from "express";
-import { Role, User, Users } from "~/models/User";
+import { RoleLevel, User, Users } from "~/models/User";
 import { generateToken, httpError } from "~/utils/general";
 
 type Signup = {
     email: string;
     username: string;
     password: string;
-    role: Role;
+    role: RoleLevel;
 }
 
 export default class extends Base {
@@ -26,8 +26,6 @@ export default class extends Base {
         );
     }
 
-    //TODO - Check if username already exists
-    //     - Check if email already exists
     async run(req: Request, res: Response): Promise<void> {
         try {
             const body: Signup = req.body;
