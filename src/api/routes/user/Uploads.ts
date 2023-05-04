@@ -1,8 +1,8 @@
-import Base from "~/api/Base";
-import { Images } from "~/models/Image";
-import Router from "~/api/Router";
+import type { Request, Response } from "express";
 
-import { Request, Response } from "express";
+import Route from "~/api/Route";
+import Router from "~/api/Router";
+import { Images } from "~/models/Image";
 import { httpError, isNumeric } from "~/utils/general";
 
 type Query = {
@@ -25,7 +25,7 @@ function validateQuery(query: Record<string, unknown>): Query | null {
     };
 }
 
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/user/:id/uploads", method: "GET", controller });
 

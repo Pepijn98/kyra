@@ -1,13 +1,13 @@
-import { Context } from "~/types/General";
-import Logger from "~/utils/Logger";
+import type { NextFunction, Request, Response } from "express";
+import { RateLimitRequestHandler, rateLimit } from "express-rate-limit";
+
 import Router from "~/api/Router";
+import { Role, Users } from "~/models/User";
+import type { Context } from "~/types/General";
+import Logger from "~/utils/Logger";
 import { httpError } from "~/utils/general";
 
-import { NextFunction, Request, Response } from "express";
-import { RateLimitRequestHandler, rateLimit } from "express-rate-limit";
-import { Role, Users } from "~/models/User";
-
-export default abstract class Base {
+export default abstract class Route {
     path: string;
     method: string;
     controller: Router;
@@ -29,7 +29,7 @@ export default abstract class Base {
             message: httpError[429],
             statusCode: 429,
             skip: (req: Request): boolean => {
-                return (req.user && (req.user.role === Role.ADMIN || req.user.role === Role.OWNER) ? true : false);
+                return req.user && (req.user.role === Role.ADMIN || req.user.role === Role.OWNER) ? true : false;
             }
         });
     }

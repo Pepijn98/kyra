@@ -1,10 +1,10 @@
-import Base from "~/api/Base";
-import Router from "~/api/Router";
 import bcrypt from "bcrypt";
-import { httpError } from "~/utils/general";
+import type { Request, Response } from "express";
 
-import { Request, Response } from "express";
+import Route from "~/api/Route";
+import Router from "~/api/Router";
 import { RoleLevel, Users } from "~/models/User";
+import { httpError } from "~/utils/general";
 
 type UpdateBody = {
     email?: string
@@ -14,9 +14,9 @@ type UpdateBody = {
     role?: RoleLevel
 }
 
-type Update = Omit<UpdateBody, "newPassword">
+type UpdateData = Omit<UpdateBody, "newPassword">
 
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/user/:id", method: "PATCH", controller });
 
@@ -30,12 +30,13 @@ export default class extends Base {
 
     async run(req: Request, res: Response): Promise<void> {
         try {
-            if (!req.user) {
+            const user = req.user;
+            if (!user) {
                 res.status(404).json(httpError[404]);
                 return;
             }
 
-            if (req.user.id !== req.params.id) {
+            if (user.id !== req.params.id) {
                 res.status(403).json(httpError[403]);
                 return;
             }
@@ -46,13 +47,13 @@ export default class extends Base {
                 return;
             }
 
-            const match = await bcrypt.compare(body.password, req.user.password);
+            const match = await bcrypt.compare(body.password, user.password);
             if (!match) {
                 res.status(401).json(httpError[401]);
                 return;
             }
 
-            const resp = Object.assign({}, httpError[409]);
+            const resp = { ...httpError[409] };
             const hasEmail = await Users.exists({ email: body.email }).exec();
             if (hasEmail) {
                 resp.message = "Failed to update user, email address is already in use";
@@ -67,15 +68,26 @@ export default class extends Base {
                 return;
             }
 
-            const toUpdate: Update = {};
-            if (body.email) toUpdate.email = body.email;
-            if (body.username) toUpdate.username = body.username;
-            if (body.role) toUpdate.role = body.role;
-            if (body.newPassword) toUpdate.password = await bcrypt.hash(body.newPassword, 14);
+            const userUpdates: UpdateData = {};
+            if (body.email) userUpdates.email = body.email;
+            if (body.username) userUpdates.username = body.username;
+            if (body.role) userUpdates.role = body.role;
+            if (body.newPassword) {
+                userUpdates.password = await bcrypt.hash(body.newPassword, 14);
+            }
 
-            const user = await Users.findByIdAndUpdate(req.user.id, { $set: toUpdate }, { new: true }).exec();
-            if (!user) {
-                res.status(404).json(httpError[404]);
+            const updatedUser = await Users.findByIdAndUpdate(
+                user.id,
+                { $set: userUpdates },
+                { new: true },
+            ).exec();
+
+            if (!updatedUser) {
+                res.status(204).json({
+                    statusCode: 204,
+                    statusMessage: "No Content",
+                    message: ""
+                });
                 return;
             }
 

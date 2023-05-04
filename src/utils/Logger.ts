@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import moment from "moment";
-
 import { Logger as WinstonLogger, createLogger, format, transports } from "winston";
 
 export default class Logger {

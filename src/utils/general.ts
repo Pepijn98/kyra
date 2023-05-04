@@ -1,7 +1,8 @@
-import crypto from "crypto";
 
-import { Errors, RobotsConfig } from "~/types/General";
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import crypto from "crypto";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
+
+import type { Errors, RobotsConfig } from "~/types/General";
 
 export const rfile = /\.(j|t)s$/iu;
 

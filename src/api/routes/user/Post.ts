@@ -1,10 +1,10 @@
-import Base from "~/api/Base";
-import Router from "~/api/Router";
 import bcrypt from "bcrypt";
+import type { Request, Response } from "express";
 import fs from "fs/promises";
 import path from "path";
 
-import { Request, Response } from "express";
+import Route from "~/api/Route";
+import Router from "~/api/Router";
 import { RoleLevel, User, Users } from "~/models/User";
 import { generateToken, httpError } from "~/utils/general";
 
@@ -15,7 +15,7 @@ type Signup = {
     role: RoleLevel;
 }
 
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/user", method: "POST", controller });
 

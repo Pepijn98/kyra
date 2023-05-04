@@ -1,17 +1,17 @@
-import Base from "~/api/Base";
+import bcrypt from "bcrypt";
+import type { Request, Response } from "express";
+
+import Route from "~/api/Route";
 import Router from "~/api/Router";
 import { Users } from "~/models/User";
-import bcrypt from "bcrypt";
 import { httpError } from "~/utils/general";
-
-import { Request, Response } from "express";
 
 type Login = {
     email: string
     password: string
 }
 
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/auth/login", method: "POST", controller });
 

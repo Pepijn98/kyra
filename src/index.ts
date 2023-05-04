@@ -1,18 +1,18 @@
-import Logger from "~/utils/Logger";
-import Router from "~/api/Router";
 import chalk from "chalk";
 import compression from "compression";
-import { constants } from "zlib";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import express, { Request, Response } from "express";
 import { existsSync } from "fs";
-import express from "express";
 import fs from "fs/promises";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
-import settings from "~/settings";
+import { constants } from "zlib";
 
+import Router from "~/api/Router";
+import settings from "~/settings";
+import Logger from "~/utils/Logger";
 import { blocker, httpError, robots } from "~/utils/general";
 
 const server = express();
@@ -23,13 +23,13 @@ const thumbnails = path.join(__dirname, "..", "thumbnails");
 const images = path.join(__dirname, "..", "images");
 const files = path.join(__dirname, "..", "files");
 
-function rawBodySaver(req: express.Request, _: express.Response, buf: Buffer, encoding: BufferEncoding): void {
+function rawBodySaver(req: Request, _: Response, buf: Buffer, encoding: BufferEncoding): void {
     if (buf && buf.length) {
         req.rawBody = buf.toString(encoding || "utf8");
     }
 }
 
-morgan.token<express.Request, express.Response>("type-colored", (req) => {
+morgan.token<Request, Response>("type-colored", (req) => {
     if (req.originalUrl && req.originalUrl.includes("/api")) {
         return chalk.bold.green("[ API ]");
     } else {
@@ -37,7 +37,7 @@ morgan.token<express.Request, express.Response>("type-colored", (req) => {
     }
 });
 
-morgan.token<express.Request, express.Response>("status-colored", (_req, res) => {
+morgan.token<Request, Response>("status-colored", (_req, res) => {
     if (res.headersSent || Boolean(Object.entries(res.getHeaders()).length)) {
         let status = "";
         const statusCode = res.statusCode.toString();

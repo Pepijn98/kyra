@@ -1,9 +1,9 @@
-import Base from "~/api/Base";
+import type { Request, Response } from "express";
+
+import Route from "~/api/Route";
 import Router from "~/api/Router";
 
-import { Request, Response } from "express";
-
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/auth/me", method: "GET", controller });
 

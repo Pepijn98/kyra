@@ -1,11 +1,11 @@
-import Base from "~/api/Base";
-import Router from "~/api/Router";
+import type { Request, Response } from "express";
 
-import { Request, Response } from "express";
+import Route from "~/api/Route";
+import Router from "~/api/Router";
 import { Role, Users } from "~/models/User";
 import { generateToken, httpError } from "~/utils/general";
 
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/user/:id/reset-token", method: "GET", controller });
 

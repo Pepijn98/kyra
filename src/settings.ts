@@ -1,6 +1,6 @@
-import { Settings } from "~/types/Settings";
-import { as } from "~/utils/general";
 import info from "~/info.json";
+import type { Settings } from "~/types/Settings";
+import { as } from "~/utils/general";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require("dotenv").config();

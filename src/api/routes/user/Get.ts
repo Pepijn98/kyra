@@ -1,12 +1,12 @@
-import Base from "~/api/Base";
+import type { Request, Response } from "express";
+
+import Route from "~/api/Route";
 import Router from "~/api/Router";
 import { Users } from "~/models/User";
 import { httpError } from "~/utils/general";
 
-import { Request, Response } from "express";
-
 //NOTE - Might not need this route at all
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/user/:id", method: "GET", controller });
 

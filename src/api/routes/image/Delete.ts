@@ -1,12 +1,13 @@
-import Base from "~/api/Base";
-import { Images } from "~/models/Image";
-import Router from "~/api/Router";
 import express from "express";
 import fs from "fs/promises";
-import { httpError } from "~/utils/general";
 import path from "path";
 
-export default class extends Base {
+import Route from "~/api/Route";
+import Router from "~/api/Router";
+import { Images } from "~/models/Image";
+import { httpError } from "~/utils/general";
+
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/image/:name", method: "DELETE", controller });
 

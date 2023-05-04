@@ -1,9 +1,10 @@
-import Base from "~/api/Base";
+import type { Request, Response } from "express";
+
+import Route from "~/api/Route";
 import Router from "~/api/Router";
-import express from "express";
 import settings from "~/settings";
 
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/", method: "GET", controller });
 
@@ -13,7 +14,7 @@ export default class extends Base {
         );
     }
 
-    async run(_: express.Request, res: express.Response): Promise<void> {
+    async run(_: Request, res: Response): Promise<void> {
         try {
             res.status(200).json({
                 ...settings.api,

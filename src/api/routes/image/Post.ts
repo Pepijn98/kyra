@@ -1,16 +1,17 @@
-import Base from "~/api/Base";
-import { Images } from "~/models/Image";
-import Router from "~/api/Router";
-import { existsSync } from "fs";
 import express from "express";
-import { httpError } from "~/utils/general";
-import md5 from "md5";
+import { existsSync } from "fs";
 import { mkdir } from "fs/promises";
+import md5 from "md5";
 import multer from "multer";
 import path from "path";
-import settings from "~/settings";
 import sharp from "sharp";
 import shortid from "shortid";
+
+import Route from "~/api/Route";
+import Router from "~/api/Router";
+import { Images } from "~/models/Image";
+import settings from "~/settings";
+import { httpError } from "~/utils/general";
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -25,7 +26,7 @@ const upload = multer({
     }
 }).single("image");
 
-export default class extends Base {
+export default class extends Route {
     constructor(controller: Router) {
         super({ path: "/image", method: "POST", controller });
 

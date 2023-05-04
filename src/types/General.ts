@@ -1,4 +1,4 @@
-import Router from "~/api/Router";
+import type Router from "~/api/Router";
 
 export type StatusCodes = 400 | 401 | 403 | 404 | 405 | 406 | 408 | 409 | 410 | 429 | 500 | 501 | 503 | 507 | 505
 
