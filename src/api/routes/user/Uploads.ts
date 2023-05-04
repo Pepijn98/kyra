@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { Images } from "~/models/Image";
-import { httpError, isNumeric } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { Images } from "~/models/Image.js";
+import { httpError, isNumeric } from "~/utils/general.js";
 
 type Query = {
     page: number

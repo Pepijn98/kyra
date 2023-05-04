@@ -1,13 +1,22 @@
 
 import crypto from "crypto";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
-import type { Errors, RobotsConfig } from "~/types/General";
+import type { Errors, PathData, RobotsConfig } from "~/types/General.js";
 
 export const rfile = /\.(j|t)s$/iu;
 
 export function as<T>(value: T): T {
     return value;
+}
+
+export function fileDirName(meta: ImportMeta): PathData {
+    const __filename = fileURLToPath(meta.url);
+    const __dirname = dirname(__filename);
+
+    return { __dirname, __filename };
 }
 
 export function wait(ms: number): Promise<void> {

@@ -3,7 +3,8 @@
         "baseUrl": "./",
         "rootDir": "./src",
         "target": "esnext",
-        "module": "commonjs",
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
         "outDir": "dist",
         "alwaysStrict": true,
         "noImplicitAny": true,
@@ -15,7 +16,6 @@
         "strictPropertyInitialization": true,
         "allowJs": false,
         "esModuleInterop": true,
-        "moduleResolution": "node",
         "skipLibCheck": true,
         "sourceMap": false,
         "resolveJsonModule": true,
@@ -34,6 +34,11 @@
             "@/*": ["./*"],
             "~/*": ["src/*"]
         }
+    },
+    "ts-node": {
+        "require": ["tsconfig-paths/register"],
+        "esm": true,
+        "experimentalSpecifierResolution": "node"
     },
     "include": ["./src/**/*"],
     "exclude": ["node_modules", "dist"]

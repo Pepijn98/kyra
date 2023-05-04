@@ -1,9 +1,8 @@
-import info from "~/info.json";
-import type { Settings } from "~/types/Settings";
-import { as } from "~/utils/general";
+import info from "~/info.json" assert { type: "json" };
+import type { Settings } from "~/types/Settings.js";
+import { as } from "~/utils/general.js";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require("dotenv").config();
+(await import("dotenv")).config();
 
 const defaultPort = "3000";
 const defaultHost = `http://localhost:${defaultPort}`;

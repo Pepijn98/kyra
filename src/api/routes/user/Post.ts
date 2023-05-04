@@ -3,10 +3,10 @@ import type { Request, Response } from "express";
 import fs from "fs/promises";
 import path from "path";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { RoleLevel, User, Users } from "~/models/User";
-import { generateToken, httpError } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { RoleLevel, User, Users } from "~/models/User.js";
+import { fileDirName, generateToken, httpError } from "~/utils/general.js";
 
 type Signup = {
     email: string;
@@ -62,6 +62,8 @@ export default class extends Route {
             } satisfies User);
 
             await newUser.save();
+
+            const { __dirname } = fileDirName(import.meta);
 
             // Create user folders for all images, thumbnails and files
             await Promise.all([

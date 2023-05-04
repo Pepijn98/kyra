@@ -1,14 +1,15 @@
-import Collection from "@kurozero/collection";
 import chalk from "chalk";
 import express from "express";
 import fs from "fs/promises";
 import mongoose from "mongoose";
 import path from "path";
+import { pathToFileURL } from "url";
 
-import Route from "~/api/Route";
-import settings from "~/settings";
-import Logger from "~/utils/Logger";
-import { rfile } from "~/utils/general";
+import Route from "~/api/Route.js";
+import settings from "~/settings.js";
+import { Collection } from "~/utils/Collection.js";
+import Logger from "~/utils/Logger.js";
+import { fileDirName, rfile } from "~/utils/general.js";
 
 class Router {
     router: express.Router;
@@ -44,8 +45,10 @@ class Router {
             dbName: settings.database.name,
         });
 
-        for await (const file of this.getFiles(path.join(__dirname, "routes"))) {
-            const Route = (await import(file)).default;
+        const { __dirname } = fileDirName(import.meta);
+        const routes = path.join(__dirname, "routes");
+        for await (const file of this.getFiles(routes)) {
+            const Route = (await import(pathToFileURL(file).href)).default;
             const route = new Route(this) as Route;
             this.logger.info("LOAD", `(Connected Route): ${chalk.redBright(`[${route.method}]`)} ${chalk.yellow(`${this.path}${route.path}`)}`);
             this.routes.add(route);

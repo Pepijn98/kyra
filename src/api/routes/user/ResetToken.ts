@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { Role, Users } from "~/models/User";
-import { generateToken, httpError } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { Role, Users } from "~/models/User.js";
+import { generateToken, httpError } from "~/utils/general.js";
 
 export default class extends Route {
     constructor(controller: Router) {

@@ -1,6 +1,6 @@
 import { Document, Model, Schema, model } from "mongoose";
 
-import type { ObjectValues } from "~/types/General";
+import type { ObjectValues } from "~/types/General.js";
 
 export const Role = {
     OWNER: 0,

@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { RoleLevel, Users } from "~/models/User";
-import { httpError } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { RoleLevel, Users } from "~/models/User.js";
+import { httpError } from "~/utils/general.js";
 
 type UpdateBody = {
     email?: string

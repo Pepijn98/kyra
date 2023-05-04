@@ -2,11 +2,11 @@ import type { Request, Response } from "express";
 import fs from "fs/promises";
 import path from "path";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { Images } from "~/models/Image";
-import { Role } from "~/models/User";
-import { httpError } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { Images } from "~/models/Image.js";
+import { Role } from "~/models/User.js";
+import { fileDirName, httpError } from "~/utils/general.js";
 
 export default class extends Route {
     constructor(controller: Router) {
@@ -40,6 +40,8 @@ export default class extends Route {
 
             // Remove all upload entries in the database
             await Images.deleteMany({ uploader: req.params.id }).exec();
+
+            const { __dirname } = fileDirName(import.meta);
 
             // Delete user folders with all uploaded images, thumbnails and files
             await Promise.all([

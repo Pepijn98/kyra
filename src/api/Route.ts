@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import { RateLimitRequestHandler, rateLimit } from "express-rate-limit";
 
-import Router from "~/api/Router";
-import { Role, Users } from "~/models/User";
-import type { Context } from "~/types/General";
-import Logger from "~/utils/Logger";
-import { httpError } from "~/utils/general";
+import Router from "~/api/Router.js";
+import { Role, Users } from "~/models/User.js";
+import type { Context } from "~/types/General.js";
+import Logger from "~/utils/Logger.js";
+import { httpError } from "~/utils/general.js";
 
 export default abstract class Route {
     path: string;

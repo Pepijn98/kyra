@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { Users } from "~/models/User";
-import { httpError } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { Users } from "~/models/User.js";
+import { httpError } from "~/utils/general.js";
 
 //NOTE - Might not need this route at all
 export default class extends Route {

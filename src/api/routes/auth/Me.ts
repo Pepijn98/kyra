@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
 
 export default class extends Route {
     constructor(controller: Router) {

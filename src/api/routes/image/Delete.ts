@@ -2,10 +2,10 @@ import express from "express";
 import fs from "fs/promises";
 import path from "path";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { Images } from "~/models/Image";
-import { httpError } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { Images } from "~/models/Image.js";
+import { fileDirName, httpError } from "~/utils/general.js";
 
 export default class extends Route {
     constructor(controller: Router) {
@@ -31,6 +31,8 @@ export default class extends Route {
                 res.status(403).json(httpError[403]);
                 return;
             }
+
+            const { __dirname } = fileDirName(import.meta);
 
             await Promise.all([
                 fs.rm(path.join(__dirname, "..", "..", "..", "..", "thumbnails", image.uploader, `${image.name}.jpg`), { force: true }),

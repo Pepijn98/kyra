@@ -7,11 +7,11 @@ import path from "path";
 import sharp from "sharp";
 import shortid from "shortid";
 
-import Route from "~/api/Route";
-import Router from "~/api/Router";
-import { Images } from "~/models/Image";
-import settings from "~/settings";
-import { httpError } from "~/utils/general";
+import Route from "~/api/Route.js";
+import Router from "~/api/Router.js";
+import { Images } from "~/models/Image.js";
+import settings from "~/settings.js";
+import { fileDirName, httpError } from "~/utils/general.js";
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -48,6 +48,8 @@ export default class extends Route {
                 if (!req.file || !req.body) {
                     return res.status(400).json(httpError[400]);
                 }
+
+                const { __dirname } = fileDirName(import.meta);
 
                 const thumbnailPath = path.join(__dirname, "..", "..", "..", "..", "thumbnails", req.user!.id);
                 const imagePath = path.join(__dirname, "..", "..", "..", "..", "images", req.user!.id);
