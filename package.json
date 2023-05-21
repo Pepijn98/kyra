@@ -7,7 +7,7 @@
     "type": "module",
     "engines": {
         "node": ">=18",
-        "yarn": ">=1.22.0"
+        "pnpm": ">=1.22.0"
     },
     "homepage": "https://github.com/Pepijn98/file-host#readme",
     "repository": {
@@ -24,15 +24,15 @@
     },
     "scripts": {
         "deploy": "pm2 start ecosystem.config.js --env production",
-        "start": "yarn build && cross-env NODE_ENV=production node ./dist/index.js",
-        "test": "yarn build && cross-env NODE_ENV=development node ./dist/index.js",
+        "start": "pnpm build && cross-env NODE_ENV=production node ./dist/index.js",
+        "test": "pnpm build && cross-env NODE_ENV=development node ./dist/index.js",
         "dev": "cross-env NODE_ENV=development node --loader @bleed-believer/path-alias ./src/index.ts",
-        "build": "yarn clean:dist && tsc && tsc-alias && yarn copy-files",
+        "build": "pnpm clean:dist && tsc && tsc-alias && pnpm copy-files",
         "build:test": "tsc --noEmit",
         "copy-files": "copyfiles -u 1 ./src/views/*.ejs dist/ && copyfiles -u 0 ./.env dist/",
-        "clean": "yarn clean:dist && yarn clean:pkgs",
+        "clean": "pnpm clean:dist && pnpm clean:pkgs",
         "clean:dist": "rimraf ./dist",
-        "clean:pkgs": "rimraf ./node_modules ./yarn.lock",
+        "clean:pkgs": "rimraf ./node_modules ./pnpm-lock.yaml",
         "lint": "eslint --ext .ts ./src",
         "lint:fix": "eslint --ext .ts ./src --fix",
         "deps": "depcheck"
