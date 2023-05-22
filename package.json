@@ -23,7 +23,7 @@
         "url": "https://vdbroek.dev"
     },
     "scripts": {
-        "deploy": "pm2 start ecosystem.config.js --env production",
+        "prod": "pm2 start ecosystem.config.js --env production",
         "start": "pnpm build && cross-env NODE_ENV=production node ./dist/index.js",
         "test": "pnpm build && cross-env NODE_ENV=development node ./dist/index.js",
         "dev": "cross-env NODE_ENV=development node --loader @bleed-believer/path-alias ./src/index.ts",
@@ -80,6 +80,7 @@
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-import": "^2.27.5",
         "eslint-plugin-prettier": "^4.2.1",
+        "pm2": "^5.3.0",
         "prettier": "^2.8.8",
         "rimraf": "^5.0.0",
         "ts-node": "^10.9.1",
