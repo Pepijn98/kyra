@@ -31,13 +31,15 @@ export default class extends Route {
 
             const user = await Users.findOne({ email: body.email }).exec();
             if (!user) {
-                res.status(404).json(httpError[404]);
+                const error = { ...httpError[404], message: "No account found with this email address" };
+                res.status(404).json(error);
                 return;
             }
 
             const result = await bcrypt.compare(body.password, user.password);
             if (!result) {
-                res.status(401).json(httpError[401]);
+                const error = { ...httpError[401], message: "Invalid password" };
+                res.status(401).json(error);
                 return;
             }
 
