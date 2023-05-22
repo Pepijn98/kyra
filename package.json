@@ -23,7 +23,7 @@
         "url": "https://vdbroek.dev"
     },
     "scripts": {
-        "prod": "pm2 start ecosystem.config.js --env production",
+        "prod": "pm2 start ecosystem.config.cjs --env production",
         "start": "pnpm build && cross-env NODE_ENV=production node ./dist/index.js",
         "test": "pnpm build && cross-env NODE_ENV=development node ./dist/index.js",
         "dev": "cross-env NODE_ENV=development node --loader @bleed-believer/path-alias ./src/index.ts",
