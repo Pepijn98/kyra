@@ -36,6 +36,11 @@ export default class extends Route {
                 return;
             }
 
+            if (!req.params.id) {
+                res.status(400).json(httpError[400]);
+                return;
+            }
+
             if (user.id !== req.params.id) {
                 res.status(403).json(httpError[403]);
                 return;
@@ -77,7 +82,7 @@ export default class extends Route {
             }
 
             const updatedUser = await Users.findByIdAndUpdate(
-                user.id,
+                req.params.id,
                 { $set: userUpdates },
                 { new: true },
             ).exec();

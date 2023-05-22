@@ -44,13 +44,23 @@ export default class extends Route {
                 return;
             }
 
+            if (!req.params.id) {
+                res.status(400).json(httpError[400]);
+                return;
+            }
+
+            if (req.user.id !== req.params.id) {
+                res.status(403).json(httpError[403]);
+                return;
+            }
+
             const query = validateQuery(req.query);
             if (!query) {
                 res.status(400).json(httpError[400]);
                 return;
             }
 
-            const result = await Images.find()
+            const result = await Images.find({ uploader: req.user.id })
                 .limit(query.limit)
                 .skip(query.page === 1 ? 0 : (query.page - 1) * query.limit)
                 .sort({ createdAt: -1 })

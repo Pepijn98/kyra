@@ -5,7 +5,7 @@ import path from "path";
 import Route from "~/api/Route.js";
 import Router from "~/api/Router.js";
 import { Images } from "~/models/Image.js";
-import { Role } from "~/models/User.js";
+import { Role, Users } from "~/models/User.js";
 import { fileDirName, httpError } from "~/utils/general.js";
 
 export default class extends Route {
@@ -32,6 +32,12 @@ export default class extends Route {
                 return;
             }
 
+            const exists = await Users.exists({ id: req.params.id }).exec();
+            if (!exists) {
+                res.status(404).json(httpError[404]);
+                return;
+            }
+
             // Only ADMIN and OWNER roles can delete other users
             if (req.user.id !== req.params.id && req.user.role === Role.USER) {
                 res.status(403).json(httpError[403]);
@@ -51,7 +57,7 @@ export default class extends Route {
             ]);
 
             // Delete account from database
-            const result = await req.user.deleteOne();
+            const result = await Users.findOneAndDelete({ id: req.params.id }).exec();
             if (!result) {
                 res.status(404).json(httpError[404]);
                 return;

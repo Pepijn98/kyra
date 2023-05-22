@@ -37,14 +37,14 @@ export default class extends Route {
             const resp = Object.assign({}, httpError[409]);
             const hasEmail = await Users.exists({ email: body.email }).exec();
             if (hasEmail) {
-                resp.message = "Failed to update user, email address is already in use";
+                resp.message = "Failed to create user, email address is already in use";
                 res.status(409).json(resp);
                 return;
             }
 
             const hasName = await Users.exists({ username: body.username }).exec();
             if (hasName) {
-                resp.message = "Failed to update user, username is already in use";
+                resp.message = "Failed to create user, username is already in use";
                 res.status(409).json(resp);
                 return;
             }

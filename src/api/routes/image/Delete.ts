@@ -5,6 +5,7 @@ import path from "path";
 import Route from "~/api/Route.js";
 import Router from "~/api/Router.js";
 import { Images } from "~/models/Image.js";
+import { Role } from "~/models/User.js";
 import { fileDirName, httpError } from "~/utils/general.js";
 
 export default class extends Route {
@@ -27,7 +28,12 @@ export default class extends Route {
                 return;
             }
 
-            if (req.user!.id !== image.uploader) {
+            if (!req.user) {
+                res.status(404).json(httpError[404]);
+                return;
+            }
+
+            if (req.user.id !== image.uploader && req.user.role === Role.USER) {
                 res.status(403).json(httpError[403]);
                 return;
             }
