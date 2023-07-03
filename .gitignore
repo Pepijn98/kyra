@@ -15,3 +15,5 @@ Cargo.lock
 
 .env*
 !.env.example
+
+data

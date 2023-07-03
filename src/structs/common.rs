@@ -8,6 +8,11 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{env, time::Duration};
 
+pub const ALPHANUMERIC: [char; 36] = [
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+];
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub uid: String,
@@ -20,7 +25,7 @@ pub struct Claims {
 
 #[skip_serializing_none]
 #[derive(Clone, Debug, Serialize)]
-pub struct Response<T> {
+pub struct Response<T = ()> {
     pub success: bool,
     pub message: String,
     pub data: Option<T>,
