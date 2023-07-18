@@ -7,13 +7,11 @@ use axum::{
 };
 
 use image::{imageops::FilterType, io::Reader, ImageFormat};
+use md5;
 use mongodb::Database;
 use nanoid::nanoid;
 use serde_json::json;
-
 use std::{fs, io::Cursor, sync::Arc};
-
-use md5;
 
 use crate::structs::common::{AppConfig, Response, ALPHANUMERIC};
 
@@ -34,7 +32,7 @@ async fn image_from_multipart(mut multipart: Multipart) -> Result<Bytes, Multipa
 pub async fn post_image(
     Extension(db): Extension<Database>,
     Extension(app_config): Extension<Arc<AppConfig>>,
-    Path(id): Path<String>,
+    Path(id): Path<String>, /* TODO: Get ID from jwt token */
     multipart: Multipart,
 ) -> impl IntoResponse {
     let multipart_data = image_from_multipart(multipart).await;
@@ -68,8 +66,8 @@ pub async fn post_image(
 
     let file_ext = reader.format().unwrap_or(ImageFormat::Jpeg);
 
-    let thumbnail_path = format!("./data/thumbnails/{id}");
-    let image_path = format!("./data/images/{id}");
+    let thumbnail_path = format!("./data/thumbnails/{}", id);
+    let image_path = format!("./data/images/{}", id);
 
     if let Err(_) = fs::create_dir_all(&thumbnail_path) {
         return (
@@ -120,7 +118,7 @@ pub async fn post_image(
     // Create random filename
     let file_name = nanoid!(7, &ALPHANUMERIC);
 
-    if let Err(_) = thumbnail.save(format!("{thumbnail_path}/{file_name}.jpg")) {
+    if let Err(_) = thumbnail.save(format!("{}/{}.jpg", thumbnail_path, file_name)) {
         return (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(json!(Response::<()> {
@@ -132,9 +130,9 @@ pub async fn post_image(
     };
 
     let ext = file_ext.extensions_str()[0];
-    match &image.save(format!("{image_path}/{file_name}.{ext}")) {
+    match &image.save(format!("{}/{}.{}", image_path, file_name, ext)) {
         Ok(_) => {
-            let hash = md5::compute(&image.into_bytes());
+            let hash = md5::compute(&image.as_bytes());
             /* TODO: Save entry in database {name, ext, hash, uploader_id, created_on} */
             return (
                 StatusCode::CREATED,

@@ -6,29 +6,30 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use controllers::{auth::*, common::*, image::*}; // , user::*
-use dotenv::dotenv;
-use mongodb::{options::ClientOptions, Client};
-use std::{fs, net::SocketAddr, path::Path, sync::Arc, time::Duration};
-use structs::common::{AppConfig, DatabaseConfig};
-use tokio::signal;
+
 use tower_http::{
     add_extension::AddExtensionLayer, compression::CompressionLayer, timeout::TimeoutLayer,
     trace::TraceLayer,
 };
+
+use controllers::{auth::*, common::*, image::*}; // , user::*
+use dotenv::dotenv;
+use mongodb::{options::ClientOptions, Client};
+use std::{fs, net::SocketAddr, path::Path, sync::Arc, time::Duration};
+use structs::common::AppConfig;
+use tokio::signal;
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
 
     let app_config = AppConfig::new();
-    let db_config = DatabaseConfig::new();
 
-    let mut client_options = ClientOptions::parse(db_config.uri).await.unwrap();
-    client_options.connect_timeout = db_config.connect_timeout;
-    client_options.min_pool_size = db_config.min_pool_size;
-    client_options.max_pool_size = db_config.max_pool_size;
-    client_options.compressors = db_config.compressors;
+    let mut client_options = ClientOptions::parse(&app_config.uri).await.unwrap();
+    client_options.connect_timeout = app_config.connect_timeout;
+    client_options.min_pool_size = app_config.min_pool_size;
+    client_options.max_pool_size = app_config.max_pool_size;
+    client_options.compressors = app_config.compressors.clone(); // Idk if there might be a better option than #clone()
 
     let thumbnail_path = Path::new("./data/thumbnails");
     let image_path = Path::new("./data/images");
@@ -39,7 +40,7 @@ async fn main() {
     fs::create_dir_all(&file_path).expect("Files directory could not be created");
 
     let client = Client::with_options(client_options).unwrap();
-    let db = client.database(&db_config.db_name);
+    let db = client.database(&app_config.db_name);
 
     let app = Router::new()
         .route("/", get(root))

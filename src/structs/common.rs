@@ -24,29 +24,27 @@ pub struct Claims {
 }
 
 #[skip_serializing_none]
-#[derive(Clone, Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Response<T = ()> {
     pub success: bool,
     pub message: String,
     pub data: Option<T>,
 }
 
-pub struct DatabaseConfig {
+#[derive(Debug, Clone)]
+pub struct AppConfig {
+    pub is_production: bool,
     pub uri: String,
     pub db_name: String,
     pub connect_timeout: Option<Duration>,
     pub min_pool_size: Option<u32>,
     pub max_pool_size: Option<u32>,
     pub compressors: Option<Vec<Compressor>>,
-}
-
-pub struct AppConfig {
-    pub is_production: bool,
     pub jwt_secret: String,
 }
 
-impl DatabaseConfig {
-    pub fn new() -> Self {
+impl AppConfig {
+    pub fn new() -> AppConfig {
         let mongo_uri: String = env::var("MONGO_URI")
             .expect("Failed to load `MONGO_MAX_POOL_SIZE` environment variable.");
 
@@ -70,15 +68,17 @@ impl DatabaseConfig {
             .parse::<bool>()
             .unwrap_or(false);
 
-        let db_name;
-        if is_production {
-            db_name = env::var("DB_NAME").expect("Failed to load `DB_NAME` environment variable.");
+        let db_name = if is_production {
+            env::var("DB_NAME").expect("Failed to load `DB_NAME` environment variable.")
         } else {
-            db_name = env::var("DB_NAME_DEV")
-                .expect("Failed to load `DB_NAME_DEV` environment variable.");
-        }
+            env::var("DB_NAME_DEV").expect("Failed to load `DB_NAME_DEV` environment variable.")
+        };
 
-        Self {
+        let jwt_secret =
+            env::var("JWT_SECRET").expect("Failed to load `JWT_SECRET` environment variable.");
+
+        AppConfig {
+            is_production,
             uri: mongo_uri,
             db_name,
             connect_timeout: Some(Duration::from_secs(mongo_connect_timeout)),
@@ -93,22 +93,6 @@ impl DatabaseConfig {
                     level: Default::default(),
                 },
             ]),
-        }
-    }
-}
-
-impl AppConfig {
-    pub fn new() -> Self {
-        let is_production = env::var("PRODUCTION")
-            .unwrap_or(String::from("false"))
-            .parse::<bool>()
-            .unwrap_or(false);
-
-        let jwt_secret =
-            env::var("JWT_SECRET").expect("Failed to load `JWT_SECRET` environment variable.");
-
-        Self {
-            is_production,
             jwt_secret,
         }
     }
