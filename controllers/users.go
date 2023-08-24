@@ -6,14 +6,14 @@ import (
 )
 
 func GetUsers(c *fiber.Ctx) error {
-    return c.Status(200).JSON(&models.UsersResponse{
-        Success: true,
-        Users: []models.User{
-            {
-                Id: 0,
-                Username: "pepijn",
-                Email: "pepijn@vdbroek.dev",
-            },
-        },
-    })
+	return c.Status(200).JSON(&models.UsersResponse{
+		Success: true,
+		Users: []models.User{
+			{
+				Id:       0,
+				Username: "pepijn",
+				Email:    "pepijn@vdbroek.dev",
+			},
+		},
+	})
 }

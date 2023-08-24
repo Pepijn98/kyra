@@ -7,15 +7,15 @@ import (
 
 // Starting template
 func main() {
-    app := fiber.New()
-    api := app.Group("/api")
+	app := fiber.New()
+	api := app.Group("/api")
 
-    // TODO Implement all routes and controllers
-    app.Get("/", func(c *fiber.Ctx) error {
-        return c.SendString("Hello, World!")
-    })
+	// TODO Implement all routes and controllers
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
 
-    api.Get("/users", controllers.GetUsers)
+	api.Get("/users", controllers.GetUsers)
 
-    app.Listen(":3000")
+	app.Listen(":3000")
 }
