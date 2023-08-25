@@ -4,6 +4,7 @@ go 1.21.0
 
 require (
 	github.com/gofiber/fiber/v2 v2.48.0
+	github.com/gofrs/uuid/v5 v5.0.0
 	github.com/mattn/go-sqlite3 v1.14.17
 )
 

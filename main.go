@@ -18,13 +18,13 @@ func main() {
 
 	api := app.Group("/api")
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Redirect("/api", 301)
-	}).Name("index")
+	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/api", 301) }).Name("index")
 
 	// All api routes
 	api.Get("/", controllers.ApiIndex).Name("api_index")
 	api.Get("/users", func(c *fiber.Ctx) error { return controllers.GetUsers(c, db) }).Name("get_users")
+	api.Post("/users", func(c *fiber.Ctx) error { return controllers.CreateUser(c, db) }).Name("create_user")
+	api.Get("/users/:id", func(c *fiber.Ctx) error { return controllers.GetUser(c, db) }).Name("get_user")
 
 	app.Listen(":3000")
 }
