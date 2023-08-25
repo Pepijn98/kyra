@@ -16,3 +16,8 @@ type AppInfo struct {
 	Author   Author        `json:"author"`
 	Routes   []fiber.Route `json:"routes"`
 }
+
+type ErrorResponse struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error"`
+}

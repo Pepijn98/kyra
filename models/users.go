@@ -1,9 +1,12 @@
 package models
 
 type User struct {
-	Id       int    `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	Id        string `json:"id"`
+	Email     string `json:"email"`
+	Username  string `json:"username"`
+	Token     string `json:"token"`
+	Role      uint8  `json:"role"`
+	CreatedAt string `json:"created_at"`
 }
 
 type UsersResponse struct {

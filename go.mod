@@ -3,8 +3,8 @@ module github.com/Pepijn98/kyra-api
 go 1.21.0
 
 require (
-    github.com/gofiber/fiber/v2 v2.48.0
-    github.com/h2non/bimg v1.1.9
+	github.com/gofiber/fiber/v2 v2.48.0
+	github.com/mattn/go-sqlite3 v1.14.17
 )
 
 require (
