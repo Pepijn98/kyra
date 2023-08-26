@@ -1,6 +1,9 @@
 package models
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+)
 
 type Author struct {
 	Email string `json:"email"`
@@ -20,4 +23,14 @@ type AppInfo struct {
 type ErrorResponse struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
+}
+
+type JWTClaims struct {
+	Id string `json:"id"`
+	jwt.RegisteredClaims
+}
+
+type Config struct {
+	JWTSecret string  `json:"jwt_secret"`
+	App       AppInfo `json:"app"`
 }
