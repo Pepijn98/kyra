@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/Pepijn98/kyra-api/models"
@@ -164,7 +163,38 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		})
 	}
 
-	// TODO: Check if email and username are already in use
+	// Check if the email or username is already in use
+	email_exists := 0
+	email_result := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE (email = ?));`, user.Email)
+	if err := email_result.Scan(&email_exists); err != nil {
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	if email_exists == 1 {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "Email already in use",
+		})
+	}
+
+	username_exists := 0
+	username_result := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE (username = ?));`, user.Username)
+	if err := username_result.Scan(&username_exists); err != nil {
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	if username_exists == 1 {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "Username already in use",
+		})
+	}
 
 	// Generate a new UUID for the user
 	uuid, err := uuid.NewV7()
@@ -182,12 +212,10 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 			NotBefore: jwt.NewNumericDate(time.Now().UTC()),
-			Issuer:    "kyra-api",
+			Issuer:    config.App.Name,
 			Subject:   user.Username,
 		},
 	}
-
-	log.Println(new_claims)
 
 	// Create new JWT token with payload
 	jwt := jwt.NewWithClaims(jwt.SigningMethodHS512, new_claims)
@@ -213,7 +241,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	}
 
 	// Insert the new user into the database
-	_, err = db.Exec(`INSERT INTO users (id, email, username, password, token, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?);`, user.Id, user.Email, user.Username, password, user.Token, user.Role, user.CreatedAt)
+	_, err = db.Exec(`INSERT INTO users (id, email, username, password, token, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?);`, user.Id, user.Email, user.Username, string(password), user.Token, user.Role, user.CreatedAt)
 	if err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
