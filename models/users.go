@@ -18,13 +18,8 @@ type User struct {
 }
 
 type NewUser struct {
-	Id        string    `json:"id"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	Password  string    `json:"password"`
-	Token     string    `json:"token"`
-	Role      RoleLevel `json:"role"`
-	CreatedAt string    `json:"created_at"`
+	User
+	Password string `json:"password"`
 }
 
 type UsersResponse struct {
