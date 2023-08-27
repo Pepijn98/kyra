@@ -19,10 +19,6 @@ func main() {
 	}
 	defer db.Close()
 
-	db.Exec(`DELETE FROM users WHERE (id = ?);`, "018a393c-57fc-7ab6-890c-b3498991f993")
-	db.Exec(`DELETE FROM users WHERE (id = ?);`, "018a393d-3b76-7ab6-a9cf-9d0f3f86a1d3")
-	db.Exec(`DELETE FROM users WHERE (id = ?);`, "018a393d-930b-7ab6-ac4c-40ce73242772")
-
 	env_err := godotenv.Load()
 	if env_err != nil {
 		log.Fatal("Error loading .env file")
