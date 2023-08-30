@@ -1,15 +1,15 @@
-package controllers
+package routes
 
 import (
 	"database/sql"
 	"time"
 
-	"github.com/Pepijn98/kyra-api/models"
-	"github.com/Pepijn98/kyra-api/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"vdbroek.dev/kyra-api/models"
+	"vdbroek.dev/kyra-api/utils"
 )
 
 func GetUsers(c *fiber.Ctx, db *sql.DB) error {
@@ -164,7 +164,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	}
 
 	// Check if the email or username is already in use
-	email_exists := 0
+	var email_exists int
 	email_result := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE (email = ?));`, user.Email)
 	if err := email_result.Scan(&email_exists); err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
@@ -180,7 +180,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		})
 	}
 
-	username_exists := 0
+	var username_exists int
 	username_result := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE (username = ?));`, user.Username)
 	if err := username_result.Scan(&username_exists); err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{

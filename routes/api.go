@@ -1,8 +1,8 @@
-package controllers
+package routes
 
 import (
-	"github.com/Pepijn98/kyra-api/models"
 	"github.com/gofiber/fiber/v2"
+	"vdbroek.dev/kyra-api/models"
 )
 
 func ApiIndex(ctx *fiber.Ctx, config models.Config) error {

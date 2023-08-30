@@ -29,3 +29,5 @@ go.work
 *.db
 .env*
 !.env.example
+
+test.sql
