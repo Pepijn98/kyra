@@ -21,19 +21,18 @@ import (
 
 // Starting template
 func main() {
-	db, db_err := utils.Database()
-	if db_err != nil {
-		log.Fatalf("Error connecting to database: %v", db_err)
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	db, err := utils.Database()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
 	}
 	defer db.Close()
 
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Failed to ping: %v", err)
-	}
-
-	env_err := godotenv.Load()
-	if env_err != nil {
-		log.Fatal("Error loading .env file")
 	}
 
 	app := fiber.New()
@@ -53,10 +52,12 @@ func main() {
 	}))
 
 	app.Hooks().OnName(func(r fiber.Route) error {
+		// Name doesn't work with root path in api group but manually setting it here works
 		if r.Path == "/api/" {
 			r.Name = "api_index"
 		}
 
+		// Log routes when they're assigned a name (logging routes here avoids logging HEAD requests)
 		log.Printf("Registered: [%s]\t%s ", r.Method, r.Path)
 
 		return nil
@@ -91,7 +92,7 @@ func main() {
 	api.Post("/users", func(c *fiber.Ctx) error { return routes.CreateUser(c, db, config) }).Name("create_user")
 	api.Get("/users/:id", func(c *fiber.Ctx) error { return routes.GetUser(c, db) }).Name("get_user")
 
-	// Update config after all routes are registered
+	// Update config after all routes are registered and filter out HEAD requests
 	config.App.Routes = utils.Filter(app.GetRoutes(), func(route fiber.Route) bool { return route.Method != "HEAD" })
 
 	app.Listen(":3000")
