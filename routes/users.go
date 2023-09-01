@@ -12,57 +12,75 @@ import (
 	"vdbroek.dev/kyra-api/utils"
 )
 
-func GetUsers(c *fiber.Ctx, db *sql.DB) error {
-	rows, err := db.Query(`SELECT (id, email, username, token, role, created_at) FROM users;`)
-	if err != nil {
-		return c.Status(500).JSON(models.ErrorResponse{
-			Success: false,
-			Error:   err.Error(),
-		})
-	}
-	defer rows.Close()
-
-	var users []models.User
-	for rows.Next() {
-		var user models.User
-
-		if err := rows.Scan(&user.Id, &user.Email, &user.Username, &user.Token, &user.Role, &user.CreatedAt); err != nil {
-			if err == sql.ErrNoRows {
-				return c.Status(404).JSON(models.ErrorResponse{
-					Success: false,
-					Error:   "No users found",
-				})
-			}
-
-			return c.Status(500).JSON(models.ErrorResponse{
-				Success: false,
-				Error:   err.Error(),
-			})
-		}
-		users = append(users, user)
-	}
-
-	return c.Status(200).JSON(models.UsersResponse{
-		Success: true,
-		Users:   users,
+// Probably don't need this
+func GetUsers(c *fiber.Ctx /*, db *sql.DB*/) error {
+	return c.Status(501).JSON(models.ErrorResponse{
+		Success: false,
+		Code:    501,
+		Message: "Not implemented",
 	})
+	// rows, err := db.Query(`SELECT (id, email, username, token, role, created_at) FROM users;`)
+	// if err != nil {
+	// 	return c.Status(500).JSON(models.ErrorResponse{
+	// 		Success: false,
+	// 		Error:   err.Error(),
+	// 	})
+	// }
+	// defer rows.Close()
+
+	// var users []models.User
+	// for rows.Next() {
+	// 	var user models.User
+
+	// 	if err := rows.Scan(&user.Id, &user.Email, &user.Username, &user.Token, &user.Role, &user.CreatedAt); err != nil {
+	// 		if err == sql.ErrNoRows {
+	// 			return c.Status(404).JSON(models.ErrorResponse{
+	// 				Success: false,
+	// 				Error:   "No users found",
+	// 			})
+	// 		}
+
+	// 		return c.Status(500).JSON(models.ErrorResponse{
+	// 			Success: false,
+	// 			Error:   err.Error(),
+	// 		})
+	// 	}
+	// 	users = append(users, user)
+	// }
+
+	// return c.Status(200).JSON(models.UsersResponse{
+	// 	Success: true,
+	// 	Users:   users,
+	// })
 }
 
+// Gets a single user by id param (different from getting the auth user)
 func GetUser(c *fiber.Ctx, db *sql.DB) error {
-	row := db.QueryRow(`SELECT (id, email, username, token, role, created_at) FROM users WHERE (id = ?);`, c.Params("id"))
+	uuid := c.Params("id")
+	if utils.EmptyString(uuid) {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    400,
+			Message: "Missing user id",
+		})
+	}
+
+	row := db.QueryRow(`SELECT (id, email, username, token, role, created_at) FROM users WHERE (id = ?);`, uuid)
 
 	var user models.User
 	if err := row.Scan(&user.Id, &user.Email, &user.Username, &user.Token, &user.Role, &user.CreatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(404).JSON(models.ErrorResponse{
 				Success: false,
-				Error:   "User not found",
+				Code:    404,
+				Message: "User not found",
 			})
 		}
 
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 
@@ -72,12 +90,14 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 	})
 }
 
+// Creates a new user (different from registering a user)
 func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	auth := c.GetReqHeaders()["Authorization"]
 	if utils.EmptyString(auth) {
 		return c.Status(401).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Missing authorization token",
+			Code:    401,
+			Message: "Missing authorization token",
 		})
 	}
 
@@ -89,14 +109,16 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 
 	if !auth_token.Valid {
 		return c.Status(401).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Invalid authorization token",
+			Code:    401,
+			Message: "Invalid authorization token",
 		})
 	}
 
@@ -107,13 +129,15 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		if err == sql.ErrNoRows {
 			return c.Status(401).JSON(models.ErrorResponse{
 				Success: false,
-				Error:   "Invalid auth user",
+				Code:    401,
+				Message: "Invalid auth user",
 			})
 		}
 
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 
@@ -121,7 +145,8 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if auth_user.Role != 0 {
 		return c.Status(403).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "You do not have permission to create a user",
+			Code:    403,
+			Message: "You do not have permission to create a user",
 		})
 	}
 
@@ -130,7 +155,8 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    400,
+			Message: err.Error(),
 		})
 	}
 
@@ -138,28 +164,32 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if utils.EmptyString(user.Email) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Email is required",
+			Code:    400,
+			Message: "Email is required",
 		})
 	}
 
 	if utils.EmptyString(user.Username) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Username is required",
+			Code:    400,
+			Message: "Username is required",
 		})
 	}
 
 	if utils.EmptyString(user.Password) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Password is required",
+			Code:    400,
+			Message: "Password is required",
 		})
 	}
 
 	if user.Role < 0 || user.Role > 2 {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Invalid role integer, must be between 0 and 2",
+			Code:    400,
+			Message: "Invalid role integer, must be between 0 and 2",
 		})
 	}
 
@@ -169,14 +199,16 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err := email_result.Scan(&email_exists); err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 
 	if email_exists == 1 {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Email already in use",
+			Code:    400,
+			Message: "Email already in use",
 		})
 	}
 
@@ -185,14 +217,16 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err := username_result.Scan(&username_exists); err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 
 	if username_exists == 1 {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   "Username already in use",
+			Code:    400,
+			Message: "Username already in use",
 		})
 	}
 
@@ -201,7 +235,8 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 	user.Id = uuid.String()
@@ -223,7 +258,8 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 
@@ -236,7 +272,8 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 
@@ -245,7 +282,8 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	if err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
-			Error:   err.Error(),
+			Code:    500,
+			Message: err.Error(),
 		})
 	}
 

@@ -88,12 +88,17 @@ func main() {
 
 	// All api routes
 	api.Get("/", func(c *fiber.Ctx) error { return routes.ApiIndex(c, config) }).Name("api_index")
-	api.Get("/users", func(c *fiber.Ctx) error { return routes.GetUsers(c, db) }).Name("get_users")
+	api.Get("/users", func(c *fiber.Ctx) error { return routes.GetUsers(c /*, db*/) }).Name("get_users")
 	api.Post("/users", func(c *fiber.Ctx) error { return routes.CreateUser(c, db, config) }).Name("create_user")
 	api.Get("/users/:id", func(c *fiber.Ctx) error { return routes.GetUser(c, db) }).Name("get_user")
+	api.Post("/auth/register", func(c *fiber.Ctx) error { return routes.Register(c, db) }).Name("register")
+	api.Post("/auth/login", func(c *fiber.Ctx) error { return routes.Login(c, db) }).Name("login")
+	api.Get("/auth/me", func(c *fiber.Ctx) error { return routes.Me(c, db) }).Name("me")
 
+	// TODO: Figure out why `||` breaks the Filter function
 	// Update config after all routes are registered and filter out HEAD requests
-	config.App.Routes = utils.Filter(app.GetRoutes(), func(route fiber.Route) bool { return route.Method != "HEAD" })
+	filtered := utils.Filter(app.GetRoutes(), func(route fiber.Route) bool { return route.Method != "HEAD" })
+	config.App.Routes = utils.Filter(filtered, func(route fiber.Route) bool { return route.Name != "index" })
 
 	app.Listen(":3000")
 }

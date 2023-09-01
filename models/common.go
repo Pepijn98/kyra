@@ -22,7 +22,8 @@ type AppInfo struct {
 
 type ErrorResponse struct {
 	Success bool   `json:"success"`
-	Error   string `json:"error"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 type JWTClaims struct {
