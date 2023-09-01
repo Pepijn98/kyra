@@ -92,6 +92,8 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 
 // Creates a new user (different from registering a user)
 func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
+	// TODO: Create file direcories for the user [/files/:id, /thumbnails/:id, /images/:id]
+
 	auth := c.GetReqHeaders()["Authorization"]
 	if utils.EmptyString(auth) {
 		return c.Status(401).JSON(models.ErrorResponse{
@@ -124,7 +126,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 
 	// Get the auth user from the database
 	auth_user := models.User{}
-	row := db.QueryRow(`SELECT (id, email, username, auth_token, role, created_at) FROM users WHERE (id = ?);`, auth_claims.Id)
+	row := db.QueryRow(`SELECT (id, email, username, token, role, created_at) FROM users WHERE (id = ?);`, auth_claims.Id)
 	if err := row.Scan(&auth_user.Id, &auth_user.Email, &auth_user.Username, &auth_user.Token, &auth_user.Role, &auth_user.CreatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(401).JSON(models.ErrorResponse{
@@ -142,7 +144,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	}
 
 	// Check if the auth user has permission to create a user
-	if auth_user.Role != 0 {
+	if auth_user.Role != models.OWNER {
 		return c.Status(403).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    403,

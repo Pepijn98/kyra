@@ -9,10 +9,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/csrf"
+
+	// "github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+
+	// "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 	"vdbroek.dev/kyra-api/models"
 	"vdbroek.dev/kyra-api/routes"
@@ -21,6 +23,8 @@ import (
 
 // Starting template
 func main() {
+	// TODO Make sure direcotries exists [./files, ./thumbnails, ./images]
+
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -38,10 +42,10 @@ func main() {
 	app := fiber.New()
 	api := app.Group("/api")
 
-	app.Use(recover.New())
+	// app.Use(recover.New())
 	app.Use(logger.New())
 	app.Use(cors.New())
-	app.Use(csrf.New())
+	// app.Use(csrf.New())
 	app.Use(helmet.New())
 	app.Use(cache.New(cache.Config{
 		Expiration:   1 * time.Minute,
@@ -94,6 +98,9 @@ func main() {
 	api.Post("/auth/register", func(c *fiber.Ctx) error { return routes.Register(c, db) }).Name("register")
 	api.Post("/auth/login", func(c *fiber.Ctx) error { return routes.Login(c, db) }).Name("login")
 	api.Get("/auth/me", func(c *fiber.Ctx) error { return routes.Me(c, db) }).Name("me")
+	api.Get("/images", func(c *fiber.Ctx) error { return routes.GetImages(c, db) }).Name("get_images")
+	api.Post("/images", func(c *fiber.Ctx) error { return routes.CreateImage(c, db, config) }).Name("create_image")
+	api.Get("/images/:id", func(c *fiber.Ctx) error { return routes.GetImage(c, db) }).Name("get_image")
 
 	// TODO: Figure out why `||` breaks the Filter function
 	// Update config after all routes are registered and filter out HEAD requests

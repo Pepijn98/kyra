@@ -10,6 +10,7 @@ import (
 	// "vdbroek.dev/kyra-api/utils"
 )
 
+// TODO: Implementaion
 func Register(c *fiber.Ctx, db *sql.DB) error {
 	return c.Status(501).JSON(models.ErrorResponse{
 		Success: false,
@@ -18,6 +19,7 @@ func Register(c *fiber.Ctx, db *sql.DB) error {
 	})
 }
 
+// TODO: Implementaion
 func Login(c *fiber.Ctx, db *sql.DB) error {
 	return c.Status(501).JSON(models.ErrorResponse{
 		Success: false,
@@ -26,6 +28,7 @@ func Login(c *fiber.Ctx, db *sql.DB) error {
 	})
 }
 
+// TODO: Implementaion
 func Me(c *fiber.Ctx, db *sql.DB) error {
 	return c.Status(501).JSON(models.ErrorResponse{
 		Success: false,
