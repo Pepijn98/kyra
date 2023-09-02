@@ -1,5 +1,25 @@
 {
     "gopls": {
         "analyses": { "composites": false }
-    }
+    },
+    "restoreTerminals.keepExistingTerminalsOpen": true,
+    "restoreTerminals.runOnStartup": true,
+    "restoreTerminals.terminals": [
+        {
+            "splitTerminals": [
+                {
+                    // Build don't work on windows because of some dumb pkg-config error
+                    // cba to fix it so we just run and build using wsl, it's gonna be running on ubuntu server anyways
+                    "name": "Ubuntu-22.04 (WSL)",
+                    "commands": ["wsl -d Ubuntu-22.04"],
+                    "shouldRunCommands": true
+                },
+                {
+                    // Still need pwsh terminal for git cause I also cba to setup git on wsl
+                    "name": "PowerShell",
+                    "shouldRunCommands": false
+                }
+            ]
+        }
+    ]
 }
