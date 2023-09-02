@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 
 	// "github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/goccy/go-json"
@@ -123,6 +124,34 @@ func main() {
 	app.Static("/images", "./images", static_ops)
 	app.Static("/thumbnails", "./thumbnails", static_ops)
 
+	ratelimit_response := func(c *fiber.Ctx) error {
+		return c.Status(429).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    429,
+			Message: "Too many requests",
+		})
+	}
+
+	api.Use(limiter.New(limiter.Config{
+		Max:        20,
+		Expiration: 30 * time.Second,
+		Next: func(c *fiber.Ctx) bool {
+			// Upload image route has a much stricter limit
+			return c.Route().Name == "create_image"
+		},
+		LimitReached: ratelimit_response,
+	}))
+
+	upload_limiter := limiter.New(limiter.Config{
+		Max:        2,
+		Expiration: 10 * time.Second,
+		Next: func(c *fiber.Ctx) bool {
+			// TODO: Skip limit for admin+ users
+			return false
+		},
+		LimitReached: ratelimit_response,
+	})
+
 	// All api routes
 	api.Get("/", func(c *fiber.Ctx) error { return routes.ApiIndex(c, config) }).Name("api_index")
 	api.Post("/users", func(c *fiber.Ctx) error { return routes.CreateUser(c, db, config) }).Name("create_user")
@@ -131,7 +160,7 @@ func main() {
 	api.Post("/auth/login", func(c *fiber.Ctx) error { return routes.Login(c, db) }).Name("login")
 	api.Get("/auth/me", func(c *fiber.Ctx) error { return routes.Me(c, db) }).Name("me")
 	api.Get("/images", func(c *fiber.Ctx) error { return routes.GetImages(c, db) }).Name("get_images")
-	api.Post("/images", func(c *fiber.Ctx) error { return routes.CreateImage(c, db, config) }).Name("create_image")
+	api.Post("/images", upload_limiter, func(c *fiber.Ctx) error { return routes.CreateImage(c, db, config) }).Name("create_image")
 	api.Get("/images/:id", func(c *fiber.Ctx) error { return routes.GetImage(c, db) }).Name("get_image")
 
 	// TODO: Figure out why `||` breaks the Filter function
