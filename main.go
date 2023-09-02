@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -23,7 +25,9 @@ import (
 
 // Starting template
 func main() {
-	// TODO Make sure direcotries exists [./files, ./thumbnails, ./images]
+	os.MkdirAll("./files", os.ModePerm)
+	os.MkdirAll("./thumbnails", os.ModePerm)
+	os.MkdirAll("./images", os.ModePerm)
 
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
@@ -38,6 +42,15 @@ func main() {
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Failed to ping: %v", err)
 	}
+
+	logs, err := os.OpenFile("./logs/errors.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0665)
+	if err != nil {
+		log.Fatalf("Error opening log file: %v", err)
+	}
+	defer logs.Close()
+
+	wrt := io.MultiWriter(os.Stdout, logs)
+	log.SetOutput(wrt)
 
 	app := fiber.New()
 	api := app.Group("/api")
@@ -62,7 +75,7 @@ func main() {
 		}
 
 		// Log routes when they're assigned a name (logging routes here avoids logging HEAD requests)
-		log.Printf("Registered: [%s]\t%s ", r.Method, r.Path)
+		fmt.Printf("Registered: [%s]\t%s ", r.Method, r.Path)
 
 		return nil
 	})
@@ -72,7 +85,13 @@ func main() {
 		log.Fatal("JWT_SECRET is not set in .env file")
 	}
 
+	host := os.Getenv("HOST")
+	if utils.EmptyString(host) {
+		log.Fatal("JWT_SECRET is not set in .env file")
+	}
+
 	config := models.Config{
+		Host:      host,
 		JWTSecret: jwt_secret,
 		App: models.AppInfo{
 			Name:     "kyra-api",

@@ -32,6 +32,7 @@ type JWTClaims struct {
 }
 
 type Config struct {
+	Host      string  `json:"host"`
 	JWTSecret string  `json:"jwt_secret"`
 	App       AppInfo `json:"app"`
 }

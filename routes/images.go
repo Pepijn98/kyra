@@ -1,16 +1,26 @@
 package routes
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
-	"os"
+	"io"
+	"log"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/h2non/bimg"
 	"vdbroek.dev/kyra-api/models"
 	"vdbroek.dev/kyra-api/utils"
 )
+
+type CreateImageResponse struct {
+	Success      bool   `json:"success"`
+	ThumbnailURL string `json:"thumbnail_url"`
+	ImageURL     string `json:"image_url"`
+	DeletionURL  string `json:"deletion_url"`
+}
 
 // TODO: Implementaion
 // Get all images
@@ -124,8 +134,8 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	}
 	defer image.Close()
 
-	bytes := make([]byte, file.Size)
-	if _, err := image.Read(bytes); err != nil {
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, image); err != nil {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
@@ -133,25 +143,79 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		})
 	}
 
-	// TODO: Use https://github.com/h2non/bimg to resize the image if it's too big
-	// - Don't save the image to `./tmp` but to `./images/<user_id>/<image_name>.<extension>`
+	image_name := utils.GenerateName(10)
+	image_ext := strings.Split(file.Header.Get("Content-Type"), "/")[1]
 
-	file_name := utils.GenerateName(10)
-	file_ext := strings.Split(file.Header.Get("Content-Type"), "/")[1]
+	thumbnail_ops := bimg.Options{
+		Width:   360,
+		Height:  360,
+		Quality: 50,
+		Enlarge: false,
+	}
 
-	if err := os.WriteFile(fmt.Sprintf("./tmp/%s.%s", file_name, file_ext), bytes, 0644); err != nil {
+	image_ops := bimg.Options{
+		Width:   2000,
+		Height:  2000,
+		Quality: 90,
+		Enlarge: false,
+	}
+
+	var thumbnail []byte
+	if thumbnail, err = bimg.NewImage(buf.Bytes()).Process(thumbnail_ops); err != nil {
+		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to process thumbnail ops",
+		})
+	}
+
+	// Convert the thumbnail to jpeg if it's not already
+	if image_ext != "jpeg" || image_ext != "jpg" {
+		if thumbnail, err = bimg.NewImage(thumbnail).Convert(bimg.JPEG); err != nil {
+			log.Println(err)
+			return c.Status(500).JSON(models.ErrorResponse{
+				Success: false,
+				Code:    500,
+				Message: "Failed to convert thumbnail to jpeg",
+			})
+		}
+	}
+
+	if err := bimg.Write(fmt.Sprintf("./thumbnails/%s/%s.%s", auth_user.Id, image_name, image_ext), thumbnail); err != nil {
+		log.Println(err)
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to write thumbnail to disk",
+		})
+	}
+
+	new_image, err := bimg.NewImage(buf.Bytes()).Process(image_ops)
+	if err != nil {
+		log.Println(err)
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to process image ops",
+		})
+	}
+
+	if err := bimg.Write(fmt.Sprintf("./images/%s/%s.%s", auth_user.Id, image_name, image_ext), new_image); err != nil {
+		log.Println(err)
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to write image to disk",
 		})
 	}
 
 	// TODO: Save the image data to the database
 
-	return c.Status(501).JSON(models.ErrorResponse{
-		Success: false,
-		Code:    501,
-		Message: "Not implemented",
+	return c.Status(200).JSON(CreateImageResponse{
+		Success:      true,
+		ThumbnailURL: fmt.Sprintf("%s/thumbnails/%s/%s.jpg", config.Host, auth_user.Id, image_name),
+		ImageURL:     fmt.Sprintf("%s/images/%s/%s.%s", config.Host, auth_user.Id, image_name, image_ext),
+		DeletionURL:  fmt.Sprintf("%s/api/images/%s", config.Host, "TODO: Image ID"),
 	})
 }

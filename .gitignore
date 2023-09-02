@@ -29,5 +29,9 @@ go.work
 *.db
 .env*
 !.env.example
-tmp
+tmp/
 test.sql
+logs/
+images/
+thumbnails/
+files/
