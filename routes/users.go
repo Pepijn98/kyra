@@ -35,7 +35,7 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 		})
 	}
 
-	row := db.QueryRow(`SELECT (id, email, username, token, role, created_at) FROM users WHERE (id = ?);`, uuid)
+	row := db.QueryRow(`SELECT id, email, username, token, role, created_at FROM users WHERE (id = ?);`, uuid)
 
 	var user models.User
 	if err := row.Scan(&user.Id, &user.Email, &user.Username, &user.Token, &user.Role, &user.CreatedAt); err != nil {
@@ -94,7 +94,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 
 	// Get the auth user from the database
 	auth_user := models.User{}
-	row := db.QueryRow(`SELECT (id, email, username, token, role, created_at) FROM users WHERE (id = ?);`, auth_claims.Id)
+	row := db.QueryRow(`SELECT id, email, username, token, role, created_at FROM users WHERE (id = ?);`, auth_claims.Id)
 	if err := row.Scan(&auth_user.Id, &auth_user.Email, &auth_user.Username, &auth_user.Token, &auth_user.Role, &auth_user.CreatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(401).JSON(models.ErrorResponse{
