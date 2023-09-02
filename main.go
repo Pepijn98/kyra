@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 
 	// "github.com/gofiber/fiber/v2/middleware/csrf"
+	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
@@ -26,8 +27,8 @@ import (
 // Starting template
 func main() {
 	os.MkdirAll("./files", os.ModePerm)
-	os.MkdirAll("./thumbnails", os.ModePerm)
 	os.MkdirAll("./images", os.ModePerm)
+	os.MkdirAll("./thumbnails", os.ModePerm)
 
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
@@ -52,7 +53,10 @@ func main() {
 	wrt := io.MultiWriter(os.Stdout, logs)
 	log.SetOutput(wrt)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		JSONEncoder: json.Marshal,
+		JSONDecoder: json.Unmarshal,
+	})
 	api := app.Group("/api")
 
 	// app.Use(recover.New())
@@ -75,7 +79,7 @@ func main() {
 		}
 
 		// Log routes when they're assigned a name (logging routes here avoids logging HEAD requests)
-		fmt.Printf("Registered: [%s]\t%s ", r.Method, r.Path)
+		fmt.Printf("Registered: [%s]\t%s\n", r.Method, r.Path)
 
 		return nil
 	})
@@ -109,9 +113,18 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/api", 301) }).Name("index")
 
+	static_ops := fiber.Static{
+		Index: "",
+		// Compress:      true,
+		CacheDuration: 10 * time.Minute,
+	}
+
+	app.Static("/files", "./files", static_ops)
+	app.Static("/images", "./images", static_ops)
+	app.Static("/thumbnails", "./thumbnails", static_ops)
+
 	// All api routes
 	api.Get("/", func(c *fiber.Ctx) error { return routes.ApiIndex(c, config) }).Name("api_index")
-	api.Get("/users", func(c *fiber.Ctx) error { return routes.GetUsers(c /*, db*/) }).Name("get_users")
 	api.Post("/users", func(c *fiber.Ctx) error { return routes.CreateUser(c, db, config) }).Name("create_user")
 	api.Get("/users/:id", func(c *fiber.Ctx) error { return routes.GetUser(c, db) }).Name("get_user")
 	api.Post("/auth/register", func(c *fiber.Ctx) error { return routes.Register(c, db) }).Name("register")

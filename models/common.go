@@ -5,6 +5,23 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type RoleLevel = int8
+
+const (
+	OWNER RoleLevel = iota
+	ADMIN
+	USER
+)
+
+type User struct {
+	Id        string    `json:"id"`
+	Email     string    `json:"email"`
+	Username  string    `json:"username"`
+	Token     string    `json:"token"`
+	Role      RoleLevel `json:"role"`
+	CreatedAt string    `json:"created_at"`
+}
+
 type Author struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`

@@ -2,6 +2,8 @@ package routes
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,46 +14,14 @@ import (
 	"vdbroek.dev/kyra-api/utils"
 )
 
-// Probably don't need this
-func GetUsers(c *fiber.Ctx /*, db *sql.DB*/) error {
-	return c.Status(501).JSON(models.ErrorResponse{
-		Success: false,
-		Code:    501,
-		Message: "Not implemented",
-	})
-	// rows, err := db.Query(`SELECT (id, email, username, token, role, created_at) FROM users;`)
-	// if err != nil {
-	// 	return c.Status(500).JSON(models.ErrorResponse{
-	// 		Success: false,
-	// 		Error:   err.Error(),
-	// 	})
-	// }
-	// defer rows.Close()
+type NewUser struct {
+	models.User
+	Password string `json:"password"`
+}
 
-	// var users []models.User
-	// for rows.Next() {
-	// 	var user models.User
-
-	// 	if err := rows.Scan(&user.Id, &user.Email, &user.Username, &user.Token, &user.Role, &user.CreatedAt); err != nil {
-	// 		if err == sql.ErrNoRows {
-	// 			return c.Status(404).JSON(models.ErrorResponse{
-	// 				Success: false,
-	// 				Error:   "No users found",
-	// 			})
-	// 		}
-
-	// 		return c.Status(500).JSON(models.ErrorResponse{
-	// 			Success: false,
-	// 			Error:   err.Error(),
-	// 		})
-	// 	}
-	// 	users = append(users, user)
-	// }
-
-	// return c.Status(200).JSON(models.UsersResponse{
-	// 	Success: true,
-	// 	Users:   users,
-	// })
+type UserResponse struct {
+	Success bool        `json:"success"`
+	User    models.User `json:"user"`
 }
 
 // Gets a single user by id param (different from getting the auth user)
@@ -84,7 +54,7 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 		})
 	}
 
-	return c.Status(200).JSON(models.UserResponse{
+	return c.Status(200).JSON(UserResponse{
 		Success: true,
 		User:    user,
 	})
@@ -92,8 +62,6 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 
 // Creates a new user (different from registering a user)
 func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
-	// TODO: Create file direcories for the user [/files/:id, /thumbnails/:id, /images/:id]
-
 	auth := c.GetReqHeaders()["Authorization"]
 	if utils.EmptyString(auth) {
 		return c.Status(401).JSON(models.ErrorResponse{
@@ -153,7 +121,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	}
 
 	// Parse request body
-	var user models.NewUser
+	var user NewUser
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
@@ -289,8 +257,12 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		})
 	}
 
+	os.MkdirAll(fmt.Sprintf("./files/%s", user.Id), os.ModePerm)
+	os.MkdirAll(fmt.Sprintf("./thumbnails/%s", user.Id), os.ModePerm)
+	os.MkdirAll(fmt.Sprintf("./images/%s", user.Id), os.ModePerm)
+
 	// Return the new user data
-	return c.Status(200).JSON(models.UserResponse{
+	return c.Status(200).JSON(UserResponse{
 		Success: true,
 		User: models.User{
 			Id:        user.Id,

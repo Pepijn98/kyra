@@ -2,13 +2,17 @@ package routes
 
 import (
 	"bytes"
+	"crypto/md5"
 	"database/sql"
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/h2non/bimg"
 	"vdbroek.dev/kyra-api/models"
@@ -80,10 +84,11 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 			})
 		}
 
+		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to parse authorization token",
 		})
 	}
 
@@ -107,57 +112,77 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 			})
 		}
 
+		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to get auth user from database",
 		})
 	}
 	// -END: Authentication logic
 
 	file, err := c.FormFile("image")
 	if err != nil {
+		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to get image from form-data",
 		})
 	}
 
-	image, err := file.Open()
+	mp_image, err := file.Open()
 	if err != nil {
+		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to open image",
 		})
 	}
-	defer image.Close()
+	defer mp_image.Close()
 
 	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, image); err != nil {
+	if _, err := io.Copy(buf, mp_image); err != nil {
+		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to copy image to buffer",
+		})
+	}
+
+	uuid, err := uuid.NewV7()
+	if err != nil {
+		log.Println(err)
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to generate uuid",
 		})
 	}
 
 	image_name := utils.GenerateName(10)
 	image_ext := strings.Split(file.Header.Get("Content-Type"), "/")[1]
+	image_id := uuid.String()
+	created_at := time.Now().UTC().Format(utils.ISO8601)
+
+	md5_hash := md5.New()
+	if _, err := md5_hash.Write(buf.Bytes()); err != nil {
+		log.Println(err)
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to create hash of image",
+		})
+	}
+	image_hash := fmt.Sprintf("%x", md5_hash.Sum(nil))
 
 	thumbnail_ops := bimg.Options{
 		Width:   360,
 		Height:  360,
 		Quality: 50,
-		Enlarge: false,
-	}
-
-	image_ops := bimg.Options{
-		Width:   2000,
-		Height:  2000,
-		Quality: 90,
-		Enlarge: false,
+		Enlarge: true,
 	}
 
 	var thumbnail []byte
@@ -182,7 +207,47 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		}
 	}
 
-	if err := bimg.Write(fmt.Sprintf("./thumbnails/%s/%s.%s", auth_user.Id, image_name, image_ext), thumbnail); err != nil {
+	bimage := bimg.NewImage(buf.Bytes())
+	image_size, err := bimage.Size()
+	if err != nil {
+		log.Println(err)
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to get image size",
+		})
+	}
+
+	var image []byte
+	if image_size.Width > 2000 || image_size.Height > 2000 {
+		if image, err = bimage.Process(bimg.Options{
+			Height:  2000,
+			Width:   2000,
+			Quality: 90,
+			Enlarge: true,
+		}); err != nil {
+			log.Println(err)
+			return c.Status(500).JSON(models.ErrorResponse{
+				Success: false,
+				Code:    500,
+				Message: "Failed to resize image",
+			})
+		}
+	} else {
+		if image, err = bimage.Process(bimg.Options{
+			Quality: 90,
+			Enlarge: false,
+		}); err != nil {
+			log.Println(err)
+			return c.Status(500).JSON(models.ErrorResponse{
+				Success: false,
+				Code:    500,
+				Message: "Failed to process image ops",
+			})
+		}
+	}
+
+	if err := bimg.Write(fmt.Sprintf("./thumbnails/%s/%s.jpeg", auth_user.Id, image_name), thumbnail); err != nil {
 		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
@@ -191,17 +256,10 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		})
 	}
 
-	new_image, err := bimg.NewImage(buf.Bytes()).Process(image_ops)
-	if err != nil {
-		log.Println(err)
-		return c.Status(500).JSON(models.ErrorResponse{
-			Success: false,
-			Code:    500,
-			Message: "Failed to process image ops",
-		})
-	}
+	if err := bimg.Write(fmt.Sprintf("./images/%s/%s.%s", auth_user.Id, image_name, image_ext), image); err != nil {
+		// Clean up the thumbnail if the image write fails
+		os.Remove(fmt.Sprintf("./thumbnails/%s/%s.%s", auth_user.Id, image_name, image_ext))
 
-	if err := bimg.Write(fmt.Sprintf("./images/%s/%s.%s", auth_user.Id, image_name, image_ext), new_image); err != nil {
 		log.Println(err)
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
@@ -210,12 +268,24 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 		})
 	}
 
-	// TODO: Save the image data to the database
+	_, err = db.Exec(`INSERT INTO images (id, name, ext, hash, uploader, created_at) VALUES (?, ?, ?, ?, ?, ?);`, image_id, image_name, image_ext, image_hash, auth_user.Id, created_at)
+	if err != nil {
+		// Clean up the thumbnail and image if the database insert fails
+		os.Remove(fmt.Sprintf("./thumbnails/%s/%s.%s", auth_user.Id, image_name, image_ext))
+		os.Remove(fmt.Sprintf("./images/%s/%s.%s", auth_user.Id, image_name, image_ext))
+
+		log.Println(err)
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to insert image into database",
+		})
+	}
 
 	return c.Status(200).JSON(CreateImageResponse{
 		Success:      true,
-		ThumbnailURL: fmt.Sprintf("%s/thumbnails/%s/%s.jpg", config.Host, auth_user.Id, image_name),
+		ThumbnailURL: fmt.Sprintf("%s/thumbnails/%s/%s.jpeg", config.Host, auth_user.Id, image_name),
 		ImageURL:     fmt.Sprintf("%s/images/%s/%s.%s", config.Host, auth_user.Id, image_name, image_ext),
-		DeletionURL:  fmt.Sprintf("%s/api/images/%s", config.Host, "TODO: Image ID"),
+		DeletionURL:  fmt.Sprintf("%s/api/images/%s", config.Host, image_id),
 	})
 }

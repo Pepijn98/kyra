@@ -4,6 +4,7 @@ go 1.21.0
 
 require (
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/fiber/v2 v2.49.0
 	github.com/gofrs/uuid/v5 v5.0.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
