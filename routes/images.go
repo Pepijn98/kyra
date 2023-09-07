@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofrs/uuid/v5"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/h2non/bimg"
 	"vdbroek.dev/kyra-api/models"
 	"vdbroek.dev/kyra-api/utils"
@@ -50,76 +50,16 @@ func GetImage(c *fiber.Ctx, db *sql.DB) error {
 func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	c.Accepts("multipart/form-data")
 
-	// TODO: Move this to a middleware
-	// -START: Authentication logic
-	auth := c.GetReqHeaders()["Authorization"]
-	if utils.EmptyString(auth) {
-		return c.Status(401).JSON(models.ErrorResponse{
-			Success: false,
-			Code:    401,
-			Message: "Missing authorization token",
-		})
-	}
-
-	// Validate the auth token
-	auth_claims := models.JWTClaims{}
-	auth_token, err := jwt.ParseWithClaims(auth, &auth_claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.JWTSecret), nil
-	})
-
-	if err != nil {
-		if strings.HasPrefix(err.Error(), jwt.ErrTokenMalformed.Error()) {
-			return c.Status(401).JSON(models.ErrorResponse{
-				Success: false,
-				Code:    401,
-				Message: "Malformed authorization token",
-			})
-		}
-
-		if strings.HasPrefix(err.Error(), jwt.ErrTokenSignatureInvalid.Error()) {
-			return c.Status(401).JSON(models.ErrorResponse{
-				Success: false,
-				Code:    401,
-				Message: "Invalid authorization token",
-			})
-		}
-
-		log.Println(err)
+	// Get the auth user from the context
+	auth_user, ok := c.Locals("auth_user").(*models.User)
+	if !ok {
+		log.Println(errors.New("failed to parse Ctx#Locals() interface{} to models.User"))
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: "Failed to parse authorization token",
+			Message: "Failed to get auth user",
 		})
 	}
-
-	if !auth_token.Valid {
-		return c.Status(401).JSON(models.ErrorResponse{
-			Success: false,
-			Code:    401,
-			Message: "Invalid authorization token",
-		})
-	}
-
-	// Get the auth user from the database
-	auth_user := models.User{}
-	row := db.QueryRow(`SELECT id, email, username, token, role, created_at FROM users WHERE id = ?;`, auth_claims.Id)
-	if err := row.Scan(&auth_user.Id, &auth_user.Email, &auth_user.Username, &auth_user.Token, &auth_user.Role, &auth_user.CreatedAt); err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(401).JSON(models.ErrorResponse{
-				Success: false,
-				Code:    401,
-				Message: "Invalid auth user",
-			})
-		}
-
-		log.Println(err)
-		return c.Status(500).JSON(models.ErrorResponse{
-			Success: false,
-			Code:    500,
-			Message: "Failed to get auth user from database",
-		})
-	}
-	// -END: Authentication logic
 
 	file, err := c.FormFile("image")
 	if err != nil {
@@ -196,7 +136,7 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
 	}
 
 	// Convert the thumbnail to jpeg if it's not already
-	if image_ext != "jpeg" || image_ext != "jpg" {
+	if image_ext != "jpeg" && image_ext != "jpg" {
 		if thumbnail, err = bimg.NewImage(thumbnail).Convert(bimg.JPEG); err != nil {
 			log.Println(err)
 			return c.Status(500).JSON(models.ErrorResponse{

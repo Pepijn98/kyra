@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"golang.org/x/exp/slices"
 
 	// "github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/goccy/go-json"
@@ -20,6 +21,7 @@ import (
 
 	// "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
+	"vdbroek.dev/kyra-api/middleware"
 	"vdbroek.dev/kyra-api/models"
 	"vdbroek.dev/kyra-api/routes"
 	"vdbroek.dev/kyra-api/utils"
@@ -80,7 +82,7 @@ func main() {
 		}
 
 		// Log routes when they're assigned a name (logging routes here avoids logging HEAD requests)
-		fmt.Printf("Registered: [%s]\t%s\n", r.Method, r.Path)
+		fmt.Printf("Registered: %-20s%-10s%s\n", r.Path, "["+r.Method+"]", r.Name)
 
 		return nil
 	})
@@ -95,6 +97,7 @@ func main() {
 		log.Fatal("JWT_SECRET is not set in .env file")
 	}
 
+	// Define the app configuration
 	config := models.Config{
 		Host:      host,
 		JWTSecret: jwt_secret,
@@ -112,17 +115,19 @@ func main() {
 		},
 	}
 
-	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/api", 301) }).Name("index")
-
+	// Options for all static files in /files, /images and /thumbnails
 	static_ops := fiber.Static{
 		Index: "",
 		// Compress:      true,
 		CacheDuration: 10 * time.Minute,
 	}
 
-	app.Static("/files", "./files", static_ops)
-	app.Static("/images", "./images", static_ops)
-	app.Static("/thumbnails", "./thumbnails", static_ops)
+	// Api routes that don't require authentication
+	no_auth := []string{
+		"api_index",
+		"register",
+		"login",
+	}
 
 	ratelimit_response := func(c *fiber.Ctx) error {
 		return c.Status(429).JSON(models.ErrorResponse{
@@ -131,6 +136,22 @@ func main() {
 			Message: "Too many requests",
 		})
 	}
+
+	upload_limiter := limiter.New(limiter.Config{
+		Max:        2,
+		Expiration: 10 * time.Second,
+		Next: func(c *fiber.Ctx) bool {
+			// TODO: Skip limit for admin+ users
+			return false
+		},
+		LimitReached: ratelimit_response,
+	})
+
+	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/api", 301) }).Name("index")
+
+	app.Static("/files", "./files", static_ops)
+	app.Static("/images", "./images", static_ops)
+	app.Static("/thumbnails", "./thumbnails", static_ops)
 
 	api.Use(limiter.New(limiter.Config{
 		Max:        20,
@@ -142,15 +163,13 @@ func main() {
 		LimitReached: ratelimit_response,
 	}))
 
-	upload_limiter := limiter.New(limiter.Config{
-		Max:        2,
-		Expiration: 10 * time.Second,
-		Next: func(c *fiber.Ctx) bool {
-			// TODO: Skip limit for admin+ users
-			return false
+	api.Use(middleware.NewAuth(middleware.AuthConfig{
+		DB:        db,
+		AppConfig: &config,
+		Filter: func(c *fiber.Ctx) bool {
+			return slices.Contains[[]string, string](no_auth, c.Route().Name)
 		},
-		LimitReached: ratelimit_response,
-	})
+	}))
 
 	// All api routes
 	api.Get("/", func(c *fiber.Ctx) error { return routes.ApiIndex(c, config) }).Name("api_index")

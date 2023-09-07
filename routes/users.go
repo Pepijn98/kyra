@@ -2,7 +2,9 @@ package routes
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -62,52 +64,16 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 
 // Creates a new user (different from registering a user)
 func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
-	auth := c.GetReqHeaders()["Authorization"]
-	if utils.EmptyString(auth) {
-		return c.Status(401).JSON(models.ErrorResponse{
-			Success: false,
-			Code:    401,
-			Message: "Missing authorization token",
-		})
-	}
+	c.Accepts("application/json")
 
-	// Validate the auth token
-	auth_claims := models.JWTClaims{}
-	auth_token, err := jwt.ParseWithClaims(auth, &auth_claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.JWTSecret), nil
-	})
-	if err != nil {
+	// Get the auth user from the context
+	auth_user, ok := c.Locals("auth_user").(*models.User)
+	if !ok {
+		log.Println(errors.New("failed to parse Ctx#Locals() interface{} to models.User"))
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
-		})
-	}
-
-	if !auth_token.Valid {
-		return c.Status(401).JSON(models.ErrorResponse{
-			Success: false,
-			Code:    401,
-			Message: "Invalid authorization token",
-		})
-	}
-
-	// Get the auth user from the database
-	auth_user := models.User{}
-	row := db.QueryRow(`SELECT id, email, username, token, role, created_at FROM users WHERE (id = ?);`, auth_claims.Id)
-	if err := row.Scan(&auth_user.Id, &auth_user.Email, &auth_user.Username, &auth_user.Token, &auth_user.Role, &auth_user.CreatedAt); err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(401).JSON(models.ErrorResponse{
-				Success: false,
-				Code:    401,
-				Message: "Invalid auth user",
-			})
-		}
-
-		return c.Status(500).JSON(models.ErrorResponse{
-			Success: false,
-			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to get auth user",
 		})
 	}
 
