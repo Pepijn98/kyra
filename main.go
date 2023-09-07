@@ -165,8 +165,12 @@ func main() {
 
 	// TODO: Figure out why `||` breaks the Filter function
 	// Update config after all routes are registered and filter out HEAD requests
-	filtered := utils.Filter(app.GetRoutes(), func(route fiber.Route) bool { return route.Method != "HEAD" })
-	config.App.Routes = utils.Filter(filtered, func(route fiber.Route) bool { return route.Name != "index" })
+	var filtered []fiber.Route
+	filtered = utils.Filter(app.GetRoutes(), func(route fiber.Route) bool { return route.Method != "HEAD" })
+	filtered = utils.Filter(filtered, func(route fiber.Route) bool { return route.Name != "index" })
+	filtered = utils.Filter(filtered, func(route fiber.Route) bool { return route.Name != "api_index" })
+
+	config.App.Routes = filtered
 
 	app.Listen(":3000")
 }
