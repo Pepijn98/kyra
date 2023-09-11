@@ -17,7 +17,7 @@ type AuthConfig struct {
 	Filter    func(*fiber.Ctx) bool
 }
 
-func NewAuth(config ...AuthConfig) fiber.Handler {
+func Auth(config ...AuthConfig) fiber.Handler {
 	var cfg AuthConfig
 	if len(config) > 0 {
 		cfg = config[0]

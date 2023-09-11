@@ -111,7 +111,6 @@ func main() {
 				Name:  "Pepijn van den Broek",
 				Url:   "https://vdbroek.dev",
 			},
-			Routes: []fiber.Route{},
 		},
 	}
 
@@ -149,47 +148,46 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/api", 301) }).Name("index")
 
+	// Serve uploaded files and images as static
 	app.Static("/files", "./files", static_ops)
 	app.Static("/images", "./images", static_ops)
 	app.Static("/thumbnails", "./thumbnails", static_ops)
 
+	// Ratelimiter for all api routes excluding `upload_image` route
 	api.Use(limiter.New(limiter.Config{
 		Max:        20,
 		Expiration: 30 * time.Second,
 		Next: func(c *fiber.Ctx) bool {
 			// Upload image route has a much stricter limit
-			return c.Route().Name == "create_image"
+			return c.Route().Name == "upload_image"
 		},
 		LimitReached: ratelimit_response,
 	}))
 
-	api.Use(middleware.NewAuth(middleware.AuthConfig{
+	// Authentication middleware for all api routes excluding `no_auth` routes
+	api.Use(middleware.Auth(middleware.AuthConfig{
 		DB:        db,
 		AppConfig: &config,
 		Filter: func(c *fiber.Ctx) bool {
-			return slices.Contains[[]string, string](no_auth, c.Route().Name)
+			return slices.Contains(no_auth, c.Route().Name)
 		},
 	}))
 
 	// All api routes
-	api.Get("/", func(c *fiber.Ctx) error { return routes.ApiIndex(c, config) }).Name("api_index")
-	api.Post("/users", func(c *fiber.Ctx) error { return routes.CreateUser(c, db, config) }).Name("create_user")
+	api.Get("/", func(c *fiber.Ctx) error { return routes.ApiIndex(c, &config) }).Name("api_index")
+	api.Post("/users", func(c *fiber.Ctx) error { return routes.CreateUser(c, db, &config) }).Name("create_user")
 	api.Get("/users/:id", func(c *fiber.Ctx) error { return routes.GetUser(c, db) }).Name("get_user")
 	api.Post("/auth/register", func(c *fiber.Ctx) error { return routes.Register(c, db) }).Name("register")
 	api.Post("/auth/login", func(c *fiber.Ctx) error { return routes.Login(c, db) }).Name("login")
 	api.Get("/auth/me", func(c *fiber.Ctx) error { return routes.Me(c, db) }).Name("me")
 	api.Get("/images", func(c *fiber.Ctx) error { return routes.GetImages(c, db) }).Name("get_images")
-	api.Post("/images", upload_limiter, func(c *fiber.Ctx) error { return routes.CreateImage(c, db, config) }).Name("create_image")
+	api.Post("/images", upload_limiter, func(c *fiber.Ctx) error { return routes.CreateImage(c, db, &config) }).Name("upload_image")
 	api.Get("/images/:id", func(c *fiber.Ctx) error { return routes.GetImage(c, db) }).Name("get_image")
 
-	// TODO: Figure out why `||` breaks the Filter function
-	// Update config after all routes are registered and filter out HEAD requests
-	var filtered []fiber.Route
-	filtered = utils.Filter(app.GetRoutes(), func(route fiber.Route) bool { return route.Method != "HEAD" })
-	filtered = utils.Filter(filtered, func(route fiber.Route) bool { return route.Name != "index" })
-	filtered = utils.Filter(filtered, func(route fiber.Route) bool { return route.Name != "api_index" })
-
-	config.App.Routes = filtered
+	// Add all routes to the app config after they've been registered
+	config.App.Routes = utils.Filter(app.GetRoutes(), func(route fiber.Route) bool {
+		return route.Method != "HEAD" && route.Name != "index" && route.Name != "api_index"
+	})
 
 	app.Listen(":3000")
 }

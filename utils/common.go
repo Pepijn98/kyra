@@ -24,10 +24,10 @@ const (
 var my_rand = rand.NewSource(time.Now().UnixNano())
 
 // Filter out items from an array
-func Filter[T any](in []T, test func(T) bool) (out []T) {
-	for _, item := range in {
+func Filter[T any](slice []T, test func(T) bool) (filtered []T) {
+	for _, item := range slice {
 		if test(item) {
-			out = append(out, item)
+			filtered = append(filtered, item)
 		}
 	}
 	return

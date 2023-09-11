@@ -47,7 +47,7 @@ func GetImage(c *fiber.Ctx, db *sql.DB) error {
 }
 
 // Upload a new image
-func CreateImage(c *fiber.Ctx, db *sql.DB, config models.Config) error {
+func CreateImage(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 	c.Accepts("multipart/form-data")
 
 	// Get the auth user from the context

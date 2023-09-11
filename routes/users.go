@@ -63,7 +63,7 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 }
 
 // Creates a new user (different from registering a user)
-func CreateUser(c *fiber.Ctx, db *sql.DB, config models.Config) error {
+func CreateUser(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 	c.Accepts("application/json")
 
 	// Get the auth user from the context
