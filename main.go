@@ -37,6 +37,11 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	port := os.Getenv("PORT")
+	if utils.EmptyString(port) {
+		log.Fatal("PORT is not set in .env file")
+	}
+
 	db, err := utils.Database()
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
@@ -189,5 +194,5 @@ func main() {
 		return route.Method != "HEAD" && route.Name != "index" && route.Name != "api_index"
 	})
 
-	app.Listen(":3000")
+	app.Listen(fmt.Sprintf(":%s", port))
 }
