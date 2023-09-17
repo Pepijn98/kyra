@@ -37,6 +37,14 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 		})
 	}
 
+	if !utils.IsUUID(uuid) {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    400,
+			Message: "Invalid user id",
+		})
+	}
+
 	row := db.QueryRow(`SELECT id, email, username, token, role, created_at FROM users WHERE (id = ?);`, uuid)
 
 	var user models.User
