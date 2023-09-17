@@ -145,8 +145,8 @@ func main() {
 		Max:        2,
 		Expiration: 10 * time.Second,
 		Next: func(c *fiber.Ctx) bool {
-			// TODO: Skip limit for admin+ users
-			return false
+			auth_user, ok := c.Locals("auth_user").(*models.User)
+			return ok && (auth_user.Role == models.OWNER || auth_user.Role == models.ADMIN)
 		},
 		LimitReached: ratelimit_response,
 	})
@@ -180,13 +180,21 @@ func main() {
 
 	// All api routes
 	api.Get("/", func(c *fiber.Ctx) error { return routes.ApiIndex(c, &config) }).Name("api_index")
+
 	api.Post("/users", func(c *fiber.Ctx) error { return routes.CreateUser(c, db, &config) }).Name("create_user")
+
 	api.Get("/users/:id", func(c *fiber.Ctx) error { return routes.GetUser(c, db) }).Name("get_user")
+
 	api.Post("/auth/register", func(c *fiber.Ctx) error { return routes.Register(c, db) }).Name("register")
+
 	api.Post("/auth/login", func(c *fiber.Ctx) error { return routes.Login(c, db) }).Name("login")
+
 	api.Get("/auth/me", func(c *fiber.Ctx) error { return routes.Me(c, db) }).Name("me")
+
 	api.Get("/images", func(c *fiber.Ctx) error { return routes.GetImages(c, db) }).Name("get_images")
+
 	api.Post("/images", upload_limiter, func(c *fiber.Ctx) error { return routes.CreateImage(c, db, &config) }).Name("upload_image")
+
 	api.Get("/images/:id", func(c *fiber.Ctx) error { return routes.GetImage(c, db, &config) }).Name("get_image")
 
 	// Add all routes to the app config after they've been registered
