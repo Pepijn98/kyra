@@ -240,13 +240,6 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 	// Return the new user data
 	return c.Status(200).JSON(UserResponse{
 		Success: true,
-		User: models.User{
-			Id:        user.Id,
-			Email:     user.Email,
-			Username:  user.Username,
-			Token:     user.Token,
-			Role:      user.Role,
-			CreatedAt: user.CreatedAt,
-		},
+		User:    user.User,
 	})
 }
