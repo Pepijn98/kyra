@@ -19,7 +19,15 @@ import (
 	"vdbroek.dev/kyra-api/utils"
 )
 
-type CreateImageResponse struct {
+type Image struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	Ext       string `json:"ext"`
+	Uploader  string `json:"uploader"`
+	CreatedAt string `json:"created_at"`
+}
+
+type ImageResponse struct {
 	Success      bool   `json:"success"`
 	ThumbnailURL string `json:"thumbnail_url"`
 	ImageURL     string `json:"image_url"`
@@ -36,13 +44,78 @@ func GetImages(c *fiber.Ctx, db *sql.DB) error {
 	})
 }
 
-// TODO: Implementaion
 // Get a single image
-func GetImage(c *fiber.Ctx, db *sql.DB) error {
-	return c.Status(501).JSON(models.ErrorResponse{
-		Success: false,
-		Code:    501,
-		Message: "Not implemented",
+func GetImage(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
+	uuid := strings.TrimSpace(c.Params("id"))
+	if utils.EmptyString(uuid) {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    400,
+			Message: "Missing image id",
+		})
+	}
+
+	if !utils.IsUUID(uuid) {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    400,
+			Message: "Invalid image id",
+		})
+	}
+
+	row := db.QueryRow(`SELECT id, name, ext, uploader, created_at FROM images WHERE (id = ?);`, uuid)
+
+	var image Image
+	if err := row.Scan(&image.Id, &image.Name, &image.Ext, &image.Uploader, &image.CreatedAt); err != nil {
+		log.Println(err)
+		if err == sql.ErrNoRows {
+			return c.Status(404).JSON(models.ErrorResponse{
+				Success: false,
+				Code:    404,
+				Message: "Image not found",
+			})
+		}
+
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Code:    500,
+			Message: "Failed to get image from database",
+		})
+	}
+
+	raw := c.QueryBool("raw", false)
+	thumbnail := c.QueryBool("thumbnail", false)
+
+	if raw {
+		path := fmt.Sprintf("./images/%s/%s.%s", image.Uploader, image.Name, image.Ext)
+		ext := "png"
+
+		if thumbnail {
+			path = fmt.Sprintf("./thumbnails/%s/%s.jpeg", image.Uploader, image.Name)
+			ext = "jpeg"
+		}
+
+		file, err := os.ReadFile(path)
+		if err != nil {
+			log.Println(err)
+			return c.Status(500).JSON(models.ErrorResponse{
+				Success: false,
+				Code:    500,
+				Message: "Failed to read image from disk",
+			})
+		}
+
+		c.Set("Content-Type", fmt.Sprintf("image/%s", ext))
+		c.Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s.%s\"", image.Name, ext))
+		c.Set("Last-Modified", image.CreatedAt)
+		return c.Status(200).Send(file)
+	}
+
+	return c.Status(200).JSON(ImageResponse{
+		Success:      true,
+		ThumbnailURL: fmt.Sprintf("%s/thumbnails/%s/%s.jpeg", config.Host, image.Uploader, image.Name),
+		ImageURL:     fmt.Sprintf("%s/images/%s/%s.%s", config.Host, image.Uploader, image.Name, image.Ext),
+		DeletionURL:  fmt.Sprintf("%s/api/images/%s", config.Host, image.Id),
 	})
 }
 
@@ -222,7 +295,7 @@ func CreateImage(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 		})
 	}
 
-	return c.Status(200).JSON(CreateImageResponse{
+	return c.Status(200).JSON(ImageResponse{
 		Success:      true,
 		ThumbnailURL: fmt.Sprintf("%s/thumbnails/%s/%s.jpeg", config.Host, auth_user.Id, image_name),
 		ImageURL:     fmt.Sprintf("%s/images/%s/%s.%s", config.Host, auth_user.Id, image_name, image_ext),

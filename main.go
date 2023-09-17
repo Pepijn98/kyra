@@ -182,7 +182,7 @@ func main() {
 	api.Get("/auth/me", func(c *fiber.Ctx) error { return routes.Me(c, db) }).Name("me")
 	api.Get("/images", func(c *fiber.Ctx) error { return routes.GetImages(c, db) }).Name("get_images")
 	api.Post("/images", upload_limiter, func(c *fiber.Ctx) error { return routes.CreateImage(c, db, &config) }).Name("upload_image")
-	api.Get("/images/:id", func(c *fiber.Ctx) error { return routes.GetImage(c, db) }).Name("get_image")
+	api.Get("/images/:id", func(c *fiber.Ctx) error { return routes.GetImage(c, db, &config) }).Name("get_image")
 
 	// Add all routes to the app config after they've been registered
 	config.App.Routes = utils.Filter(app.GetRoutes(), func(route fiber.Route) bool {

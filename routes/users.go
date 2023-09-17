@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,7 +29,7 @@ type UserResponse struct {
 
 // Gets a single user by id param (different from getting the auth user)
 func GetUser(c *fiber.Ctx, db *sql.DB) error {
-	uuid := c.Params("id")
+	uuid := strings.TrimSpace(c.Params("id"))
 	if utils.EmptyString(uuid) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
@@ -49,6 +50,7 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 
 	var user models.User
 	if err := row.Scan(&user.Id, &user.Email, &user.Username, &user.Token, &user.Role, &user.CreatedAt); err != nil {
+		log.Println(err)
 		if err == sql.ErrNoRows {
 			return c.Status(404).JSON(models.ErrorResponse{
 				Success: false,
@@ -60,7 +62,7 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,
-			Message: err.Error(),
+			Message: "Failed to get user from database",
 		})
 	}
 

@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"regexp"
@@ -16,7 +17,7 @@ import (
 const ISO8601 string = "2006-01-02T15:04:05.999Z"
 const CHARS string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"
 
-const UUID_R string = "^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$"
+const UUID_R string = `^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$`
 
 const (
 	char_idx_bits = 6
@@ -39,6 +40,7 @@ func Filter[T any](slice []T, test func(T) bool) (filtered []T) {
 func IsUUID(s string) bool {
 	match, err := regexp.MatchString(UUID_R, s)
 	if err != nil {
+		log.Println(err)
 		return false
 	}
 	return match
