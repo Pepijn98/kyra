@@ -1,0 +1,11 @@
+[Unit]
+Description=Kyra file hosting
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5s
+ExecStart=${HOME}/projects/kyra-api/build/main
+
+[Install]
+WantedBy=multi-user.target
