@@ -151,12 +151,15 @@ func main() {
 		LimitReached: ratelimit_response,
 	})
 
-	app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/api", 301) }).Name("index")
+	// app.Get("/", func(c *fiber.Ctx) error { return c.Redirect("/api", 301) }).Name("index")
 
 	// Serve uploaded files and images as static
 	app.Static("/files", "./files", static_ops)
 	app.Static("/images", "./images", static_ops)
 	app.Static("/thumbnails", "./thumbnails", static_ops)
+
+	app.Static("/", "./app/dist", static_ops)
+	app.Static("/", "./app/dist/index.html", static_ops)
 
 	// Ratelimiter for all api routes excluding `upload_image` route
 	api.Use(limiter.New(limiter.Config{

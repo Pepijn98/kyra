@@ -12,6 +12,7 @@ import (
 	"unsafe"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const ISO8601 string = "2006-01-02T15:04:05.999Z"
@@ -79,7 +80,8 @@ func Database() (*sql.DB, error) {
 		return nil, fmt.Errorf("DSN is not set in .env file")
 	}
 
-	db, err := sql.Open("mysql", dsn)
+	// FIXME Temporary using in memory sqlite3 database until I find an alternative to planetscale
+	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		return nil, err
 	}
