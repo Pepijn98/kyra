@@ -1,9 +1,16 @@
 /* @refresh reload */
-import { render } from 'solid-js/web'
+import { render } from "solid-js/web";
+import { Router } from "@solidjs/router";
 
-import './index.css'
-import App from './App'
+import App from "./app";
 
-const root = document.getElementById('root')
+const root = document.getElementById("root");
 
-render(() => <App />, root!)
+render(
+    () => (
+        <Router>
+            <App />
+        </Router>
+    ),
+    root!
+);
