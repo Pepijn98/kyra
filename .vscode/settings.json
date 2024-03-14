@@ -21,5 +21,6 @@
                 }
             ]
         }
-    ]
+    ],
+    "git.ignoreLimitWarning": true
 }
