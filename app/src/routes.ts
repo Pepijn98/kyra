@@ -4,8 +4,8 @@ import type { RouteDefinition } from "@solidjs/router";
 // reference https://github.com/solidjs/templates/blob/main/ts-router/src/routes.ts
 
 import Home from "./pages/home";
-import AuthLayout from "./pages/auth/layout";
-import DashboardLayout from "./pages/dashboard/layout";
+import AuthLayout from "./layouts/auth";
+import DashboardLayout from "./layouts/dashboard";
 
 export const routes: RouteDefinition[] = [
     {
