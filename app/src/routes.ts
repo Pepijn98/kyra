@@ -7,6 +7,13 @@ import Home from "./pages/home";
 import AuthLayout from "./layouts/auth";
 import DashboardLayout from "./layouts/dashboard";
 
+import Login from "./pages/auth/login";
+import Register from "./pages/auth/register";
+import Documents from "./pages/dashboard/[id]/documents";
+import Images from "./pages/dashboard/[id]/images";
+import Profile from "./pages/dashboard/[id]/profile";
+import Settings from "./pages/dashboard/[id]/settings";
+
 export const routes: RouteDefinition[] = [
     {
         path: "/",
@@ -18,11 +25,11 @@ export const routes: RouteDefinition[] = [
         children: [
             {
                 path: "login",
-                component: lazy(() => import("./pages/auth/login")),
+                component: Login,
             },
             {
                 path: "register",
-                component: lazy(() => import("./pages/auth/register")),
+                component: Register,
             },
         ],
     },
@@ -32,19 +39,19 @@ export const routes: RouteDefinition[] = [
         children: [
             {
                 path: "/:id/documents",
-                component: lazy(() => import("./pages/dashboard/[id]/documents")),
+                component: Documents,
             },
             {
                 path: "/:id/images",
-                component: lazy(() => import("./pages/dashboard/[id]/images")),
+                component: Images,
             },
             {
                 path: "/:id/profile",
-                component: lazy(() => import("./pages/dashboard/[id]/profile")),
+                component: Profile,
             },
             {
                 path: "/:id/settings",
-                component: lazy(() => import("./pages/dashboard/[id]/settings")),
+                component: Settings,
             },
         ],
     },
