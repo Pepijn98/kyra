@@ -1,6 +1,18 @@
-import { type RouteProps, useParams, A } from "@solidjs/router";
+import { type RouteProps, useParams, A, useNavigate } from "@solidjs/router";
+import { useAuth } from "../providers/AuthProvider";
+import { onMount } from "solid-js";
 
 export default function DashboardLayout(props: RouteProps<string>) {
+    const navigate = useNavigate();
+
+    onMount(() => {
+        const auth = useAuth();
+        if (!auth || !auth.isAuthenticated) {
+            navigate("/auth/login", { replace: true });
+            return;
+        }
+    });
+
     const params = useParams();
 
     return (
