@@ -8,7 +8,7 @@ type AuthUser = {
 };
 
 type Auth = {
-    isAuthenticated: boolean;
+    is_authenticated: boolean;
     user?: AuthUser;
 };
 
@@ -18,13 +18,13 @@ export const AuthProvider = (props: RouteProps<string>) => {
     const user_str = localStorage.getItem("user");
 
     if (!user_str) {
-        return <AuthContext.Provider value={{ isAuthenticated: false }}>{props.children}</AuthContext.Provider>;
+        return <AuthContext.Provider value={{ is_authenticated: false }}>{props.children}</AuthContext.Provider>;
     }
 
     const user = JSON.parse(user_str) as AuthUser;
 
     const auth: Auth = {
-        isAuthenticated: false,
+        is_authenticated: false,
         user,
     };
 

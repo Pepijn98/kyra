@@ -7,7 +7,7 @@ export default function DashboardLayout(props: RouteProps<string>) {
 
     onMount(() => {
         const auth = useAuth();
-        if (!auth || !auth.isAuthenticated) {
+        if (!auth || !auth.is_authenticated) {
             navigate("/auth/login", { replace: true });
             return;
         }
