@@ -37,7 +37,7 @@ func Auth(config ...AuthConfig) fiber.Handler {
 		}
 
 		auth := c.GetReqHeaders()["Authorization"]
-		if utils.EmptyString(auth) {
+		if utils.IsEmptyString(auth) {
 			return c.Status(401).JSON(models.ErrorResponse{
 				Success: false,
 				Code:    401,

@@ -38,7 +38,7 @@ func main() {
 	}
 
 	port := os.Getenv("PORT")
-	if utils.EmptyString(port) {
+	if utils.IsEmptyString(port) {
 		log.Fatal("PORT is not set in .env file")
 	}
 
@@ -93,12 +93,12 @@ func main() {
 	})
 
 	jwt_secret := os.Getenv("JWT_SECRET")
-	if utils.EmptyString(jwt_secret) {
+	if utils.IsEmptyString(jwt_secret) {
 		log.Fatal("JWT_SECRET is not set in .env file")
 	}
 
 	host := os.Getenv("HOST")
-	if utils.EmptyString(host) {
+	if utils.IsEmptyString(host) {
 		log.Fatal("JWT_SECRET is not set in .env file")
 	}
 

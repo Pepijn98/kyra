@@ -47,7 +47,7 @@ func GetImages(c *fiber.Ctx, db *sql.DB) error {
 // Get a single image
 func GetImage(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 	uuid := strings.TrimSpace(c.Params("id"))
-	if utils.EmptyString(uuid) {
+	if utils.IsEmptyString(uuid) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    400,

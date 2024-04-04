@@ -30,7 +30,7 @@ type UserResponse struct {
 // Gets a single user by id param (different from getting the auth user)
 func GetUser(c *fiber.Ctx, db *sql.DB) error {
 	uuid := strings.TrimSpace(c.Params("id"))
-	if utils.EmptyString(uuid) {
+	if utils.IsEmptyString(uuid) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    400,
@@ -107,7 +107,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 	}
 
 	// Request body validation
-	if utils.EmptyString(user.Email) {
+	if utils.IsEmptyString(user.Email) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    400,
@@ -115,7 +115,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 		})
 	}
 
-	if utils.EmptyString(user.Username) {
+	if utils.IsEmptyString(user.Username) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    400,
@@ -123,7 +123,7 @@ func CreateUser(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 		})
 	}
 
-	if utils.EmptyString(user.Password) {
+	if utils.IsEmptyString(user.Password) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    400,

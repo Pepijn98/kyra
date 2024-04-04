@@ -9,24 +9,18 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"unsafe"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const ISO8601 string = "2006-01-02T15:04:05.999Z"
-const CHARS string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"
-
-const UUID_R string = `^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$`
-
 const (
-	char_idx_bits = 6
-	char_idx_mask = 1<<char_idx_bits - 1
-	char_idx_max  = 63 / char_idx_bits
+	ISO8601 string = "2006-01-02T15:04:05.999Z"
+	CHARS   string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"
+	UUID_R  string = `^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$`
 )
 
-var my_rand = rand.NewSource(time.Now().UnixNano())
+var rand2 = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 // Filter out items from an array
 func Filter[T any](slice []T, test func(T) bool) (filtered []T) {
@@ -47,36 +41,24 @@ func IsUUID(s string) bool {
 	return match
 }
 
-// Overly complicated way to generate a random string for no reason
+// Generate name of n length
 func GenerateName(n int) string {
 	b := make([]byte, n)
-
-	for i, cache, remain := n-1, my_rand.Int63(), char_idx_max; i >= 0; {
-		if remain == 0 {
-			cache, remain = my_rand.Int63(), char_idx_max
-		}
-
-		if idx := int(cache & char_idx_mask); idx < len(CHARS) {
-			b[i] = CHARS[idx]
-			i--
-		}
-
-		cache >>= char_idx_bits
-		remain--
+	for i := range b {
+		b[i] = CHARS[rand2.Intn(len(CHARS))]
 	}
-
-	return *(*string)(unsafe.Pointer(&b))
+	return string(b)
 }
 
 // Check if string is empty
-func EmptyString(s string) bool {
+func IsEmptyString(s string) bool {
 	return len(strings.TrimSpace(s)) == 0
 }
 
 // Connect to database
 func Database() (*sql.DB, error) {
 	dsn := os.Getenv("DSN")
-	if EmptyString(dsn) {
+	if IsEmptyString(dsn) {
 		return nil, fmt.Errorf("DSN is not set in .env file")
 	}
 

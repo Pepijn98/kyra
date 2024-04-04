@@ -45,7 +45,7 @@ func Login(c *fiber.Ctx, db *sql.DB) error {
 		})
 	}
 
-	if utils.EmptyString(body.Email) {
+	if utils.IsEmptyString(body.Email) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    400,
@@ -53,7 +53,7 @@ func Login(c *fiber.Ctx, db *sql.DB) error {
 		})
 	}
 
-	if utils.EmptyString(body.Password) {
+	if utils.IsEmptyString(body.Password) {
 		return c.Status(400).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    400,
