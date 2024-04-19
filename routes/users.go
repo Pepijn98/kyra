@@ -9,12 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Pepijn98/kyra/config"
+	"github.com/Pepijn98/kyra/database"
+	"github.com/Pepijn98/kyra/models"
+	"github.com/Pepijn98/kyra/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"vdbroek.dev/kyra-api/models"
-	"vdbroek.dev/kyra-api/utils"
 )
 
 type NewUser struct {
@@ -28,7 +30,9 @@ type UserResponse struct {
 }
 
 // Gets a single user by id param (different from getting the auth user)
-func GetUser(c *fiber.Ctx, db *sql.DB) error {
+func GetUser(c *fiber.Ctx) error {
+	db := database.DB
+
 	uuid := strings.TrimSpace(c.Params("id"))
 	if utils.IsEmptyString(uuid) {
 		return c.Status(400).JSON(models.ErrorResponse{
@@ -73,13 +77,17 @@ func GetUser(c *fiber.Ctx, db *sql.DB) error {
 }
 
 // Creates a new user (different from registering a user)
-func CreateUser(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
+func CreateUser(c *fiber.Ctx) error {
 	c.Accepts("application/json")
+
+	db := database.DB
+	config := config.Config
 
 	// Get the auth user from the context
 	auth_user, ok := c.Locals("auth_user").(*models.User)
 	if !ok {
 		log.Println(errors.New("failed to parse Ctx#Locals() interface{} to models.User"))
+		// FIXME Don't send 500 code, send 401 unauthorized
 		return c.Status(500).JSON(models.ErrorResponse{
 			Success: false,
 			Code:    500,

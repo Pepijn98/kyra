@@ -1,17 +1,11 @@
 package utils
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"math/rand"
-	"os"
 	"regexp"
 	"strings"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -53,20 +47,4 @@ func GenerateName(n int) string {
 // Check if string is empty
 func IsEmptyString(s string) bool {
 	return len(strings.TrimSpace(s)) == 0
-}
-
-// Connect to database
-func Database() (*sql.DB, error) {
-	dsn := os.Getenv("DSN")
-	if IsEmptyString(dsn) {
-		return nil, fmt.Errorf("DSN is not set in .env file")
-	}
-
-	// FIXME Temporary using in memory sqlite3 database until I find an alternative to planetscale
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
 }

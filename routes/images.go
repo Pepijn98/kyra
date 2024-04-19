@@ -12,11 +12,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Pepijn98/kyra/config"
+	"github.com/Pepijn98/kyra/database"
+	"github.com/Pepijn98/kyra/models"
+	"github.com/Pepijn98/kyra/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofrs/uuid/v5"
 	"github.com/h2non/bimg"
-	"vdbroek.dev/kyra-api/models"
-	"vdbroek.dev/kyra-api/utils"
 )
 
 type Image struct {
@@ -36,7 +38,7 @@ type ImageResponse struct {
 
 // TODO: Implementaion
 // Get all images
-func GetImages(c *fiber.Ctx, db *sql.DB) error {
+func GetImages(c *fiber.Ctx) error {
 	return c.Status(501).JSON(models.ErrorResponse{
 		Success: false,
 		Code:    501,
@@ -45,7 +47,10 @@ func GetImages(c *fiber.Ctx, db *sql.DB) error {
 }
 
 // Get a single image
-func GetImage(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
+func GetImage(c *fiber.Ctx) error {
+	db := database.DB
+	config := config.Config
+
 	uuid := strings.TrimSpace(c.Params("id"))
 	if utils.IsEmptyString(uuid) {
 		return c.Status(400).JSON(models.ErrorResponse{
@@ -120,8 +125,11 @@ func GetImage(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
 }
 
 // Upload a new image
-func CreateImage(c *fiber.Ctx, db *sql.DB, config *models.Config) error {
+func CreateImage(c *fiber.Ctx) error {
 	c.Accepts("multipart/form-data")
+
+	db := database.DB
+	config := config.Config
 
 	// Get the auth user from the context
 	auth_user, ok := c.Locals("auth_user").(*models.User)

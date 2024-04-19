@@ -10,9 +10,10 @@ import (
 
 	// "github.com/golang-jwt/jwt/v5"
 	// "golang.org/x/crypto/bcrypt"
-	"vdbroek.dev/kyra-api/models"
-	"vdbroek.dev/kyra-api/utils"
-	// "vdbroek.dev/kyra-api/utils"
+	"github.com/Pepijn98/kyra/database"
+	"github.com/Pepijn98/kyra/models"
+	"github.com/Pepijn98/kyra/utils"
+	// "github.com/Pepijn98/kyra/utils"
 )
 
 type LoginBody struct {
@@ -26,7 +27,9 @@ type LoginUser struct {
 }
 
 // TODO: Implementaion
-func Register(c *fiber.Ctx, db *sql.DB) error {
+func Register(c *fiber.Ctx) error {
+	// db := database.DB
+
 	return c.Status(501).JSON(models.ErrorResponse{
 		Success: false,
 		Code:    501,
@@ -34,7 +37,9 @@ func Register(c *fiber.Ctx, db *sql.DB) error {
 	})
 }
 
-func Login(c *fiber.Ctx, db *sql.DB) error {
+func Login(c *fiber.Ctx) error {
+	db := database.DB
+
 	var body LoginBody
 	if err := c.BodyParser(&body); err != nil {
 		log.Println(err)
@@ -97,7 +102,7 @@ func Login(c *fiber.Ctx, db *sql.DB) error {
 }
 
 // Get the user that is "currently logged in" aka from the auth token
-func Me(c *fiber.Ctx, db *sql.DB) error {
+func Me(c *fiber.Ctx) error {
 	// Get the auth user from the context
 	auth_user, ok := c.Locals("auth_user").(*models.User)
 	if !ok {
