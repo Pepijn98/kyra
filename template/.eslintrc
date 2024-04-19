@@ -1,0 +1,130 @@
+{
+    "root": true,
+    "env": {
+        "node": true
+    },
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "plugins": ["@typescript-eslint", "import"],
+    "extends": [
+        "plugin:vue/vue3-essential",
+        "@vue/eslint-config-typescript",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    "settings": {
+        "import/extensions": [".ts", ".tsx", ".js", ".jsx", ".vue"],
+        "import/external-module-folders": ["node_modules", "node_modules/@types"],
+        "import/parsers": {
+            "@typescript-eslint/parser": [".ts", ".tsx"],
+            "vue-eslint-parser": [".vue"]
+        },
+        "import/resolver": {
+            "node": {
+                "extensions": [".ts", ".tsx", ".js", ".jsx", ".vue"]
+            }
+        }
+    },
+    "rules": {
+        // vue specific config
+        "vue/multi-word-component-names": "off",
+        "vue/no-unused-vars": "off",
+        "vue/order-in-components": "off",
+        "vue/html-closing-bracket-newline": "off",
+        "vue/html-indent": ["error", 4],
+        "vue/singleline-html-element-content-newline": "off",
+
+        // TypeScript eslint options
+        "@typescript-eslint/explicit-function-return-type": [
+            "error",
+            {
+                "allowExpressions": true
+            }
+        ],
+        "@typescript-eslint/explicit-member-accessibility": "off",
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+
+        // Import rules
+        "import/named": "off",
+        "import/order": [
+            "error",
+            {
+                "newlines-between": "always",
+                "groups": [
+                    [
+                        "external", // all library imports - configured in 'import/external-module-folders'
+                        "internal", // configured in 'import/internal-regex'
+                        "builtin" // internal-library imports
+                    ],
+                    "unknown", // defined in 'pathGroups'
+                    ["parent", "sibling", "index"] // relative paths
+                ],
+                "pathGroups": [
+                    {
+                        "pattern": "@/**",
+                        "group": "unknown"
+                    },
+                    {
+                        "pattern": "~/**",
+                        "group": "unknown"
+                    }
+                ],
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": false
+                },
+                "distinctGroup": true
+            }
+        ],
+
+        // General eslint options
+        "eol-last": ["error", "always"],
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "linebreak-style": [2, "unix"],
+        "no-undef": "off",
+        "quotes": [
+            "error",
+            "double",
+            {
+                "avoidEscape": true
+            }
+        ],
+        "semi": ["error", "always"],
+        "semi-spacing": "error",
+        "semi-style": ["error", "last"]
+    },
+    "overrides": [
+        {
+            "files": ["*.js", "*.jsx"],
+            "parser": "@typescript-eslint/parser",
+            "rules": {
+                "@typescript-eslint/no-var-requires": "off"
+            }
+        },
+        {
+            // enable the rule specifically for TypeScript files
+            "files": ["*.ts", "*.tsx"],
+            "parser": "@typescript-eslint/parser",
+            "rules": {
+                "@typescript-eslint/explicit-member-accessibility": [
+                    "error",
+                    {
+                        "accessibility": "no-public"
+                    }
+                ]
+            }
+        }
+    ]
+}

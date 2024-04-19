@@ -1,0 +1,31 @@
+@forward "element-plus/theme-chalk/src/dark/var.scss" with (
+    $colors: (
+        "white": #ffffff,
+        "black": #0a0a0a,
+        "primary": (
+            "base": #f5704b
+        ),
+        "success": (
+            "base": #48c774
+        ),
+        "warning": (
+            "base": #ffdd57
+        ),
+        "danger": (
+            "base": #ff3860
+        ),
+        "error": (
+            "base": #ff3860
+        ),
+        "info": (
+            "base": #209cee
+        )
+    ),
+    $bg-color: (
+        "page": #1a1d21,
+        "": #0e0f12,
+        "overlay": #1a1d21
+    )
+);
+
+@use "element-plus/theme-chalk/src/dark/css-vars.scss" as *;

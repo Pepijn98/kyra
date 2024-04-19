@@ -1,0 +1,62 @@
+:root {
+    font-family: Ubuntu, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
+
+// Fix light theme button colors
+html.light {
+    .el-button {
+        --el-button-bg-color: transparent;
+        --el-button-hover-bg-color: var(--el-color-primary-light-7);
+        --el-button-hover-border-color: var(--el-color-primary-light-3);
+        // --el-button-border-color: var(--el-button-text-color);
+        --el-button-border-color: #afafaf;
+
+        &--primary {
+            --el-button-bg-color: var(--el-color-primary-light-7);
+            --el-button-border-color: var(--el-color-primary-light-3);
+            --el-button-hover-bg-color: var(--el-color-primary);
+            --el-button-hover-border-color: var(--el-color-primary);
+        }
+    }
+
+    .el-notification {
+        --el-notification-border-color: var(--el-button-bg-color);
+    }
+}
+
+.el-button:focus {
+    color: var(--el-button-text-color);
+    border-color: var(--el-button-border-color);
+    background-color: var(--el-button-bg-color);
+    outline: none;
+}
+
+html,
+body,
+#app,
+#app > .el-container {
+    height: 100%;
+}
+
+body {
+    background-color: var(--el-bg-color);
+}
+
+button {
+    border: 0;
+}
+
+code {
+    color: var(--el-color-primary);
+    background-color: black;
+    padding-left: 1px;
+    padding-right: 1px;
+}
