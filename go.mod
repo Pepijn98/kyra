@@ -3,9 +3,6 @@ module github.com/Pepijn98/kyra
 go 1.21.0
 
 require (
-	github.com/go-chi/chi/v5 v5.0.12
-	github.com/go-chi/httprate v0.9.0
-	github.com/go-chi/render v1.0.3
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/fiber/v2 v2.52.4
@@ -19,9 +16,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/ajg/form v1.5.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
